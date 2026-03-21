@@ -453,7 +453,7 @@
     <div style="font-size:22px;font-weight:700;margin-bottom:6px;">Нотатки</div>
     <div style="font-size:14px;color:var(--ink-muted);">Увійдіть щоб синхронізувати нотатки між пристроями</div>
   </div>
-  <button id="signInBtn" style="display:flex;align-items:center;gap:10px;padding:12px 24px;background:#fff;border:1.5px solid var(--border);border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;font-family:var(--font);box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+  <button data-action="signin" style="display:flex;align-items:center;gap:10px;padding:12px 24px;background:#fff;border:1.5px solid var(--border);border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;font-family:var(--font);box-shadow:0 2px 8px rgba(0,0,0,0.08);">
     <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
     Увійти через Google
   </button>
@@ -466,7 +466,7 @@
 <div class="topbar">
   <div class="topbar-title" id="topbarTitle">Нотатки</div>
   <span id="userEmail" style="font-size:11px;color:var(--ink-muted);max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
-  <button id="signOutBtn" style="border:none;background:none;cursor:pointer;color:var(--ink-muted);font-size:11px;font-family:var(--font);padding:4px 6px;border-radius:6px;border:1px solid var(--border);">Вийти</button>
+  <button data-action="signout" style="border:none;background:none;cursor:pointer;color:var(--ink-muted);font-size:11px;font-family:var(--font);padding:4px 6px;border-radius:6px;border:1px solid var(--border);">Вийти</button>
   <div class="search-wrap">
     <span class="search-icon">
       <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
@@ -482,7 +482,7 @@
 
 <!-- TAB BAR -->
 <nav class="tabbar">
-  <button class="tab-btn active" id="tabNotes" onclick="switchTab('notes')">
+  <button class="tab-btn active" id="tabNotes" data-action="tab" data-tab="notes">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <rect x="3" y="3" width="18" height="18" rx="3"/>
       <line x1="7" y1="8" x2="17" y2="8"/>
@@ -492,7 +492,7 @@
     Нотатки
   </button>
 
-  <button class="tab-btn" id="tabReminders" onclick="switchTab('reminders')">
+  <button class="tab-btn" id="tabReminders" data-action="tab" data-tab="reminders">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
       <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
@@ -500,7 +500,7 @@
     Нагадування
   </button>
 
-  <button class="tab-btn tab-new" onclick="openCreateModal()">
+  <button class="tab-btn tab-new" data-action="new">
     <div class="tab-inner">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
         <line x1="12" y1="5" x2="12" y2="19"/>
@@ -509,7 +509,7 @@
     </div>
   </button>
 
-  <button class="tab-btn" id="tabDeleted" onclick="switchTab('deleted')">
+  <button class="tab-btn" id="tabDeleted" data-action="tab" data-tab="deleted">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <polyline points="3 6 5 6 21 6"/>
       <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
@@ -530,7 +530,7 @@
 
     <!-- Voice -->
     <div class="form-row">
-      <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()">
+      <button class="voice-btn" id="voiceBtn" data-action="voice">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
           <path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/>
           <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
@@ -560,12 +560,12 @@
         </svg>
         <input type="datetime-local" id="reminderInput">
       </label>
-      <button class="clear-btn" onclick="clearReminder()">✕</button>
+      <button class="clear-btn" data-action="cleardate">✕</button>
     </div>
 
     <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeModal()">Скасувати</button>
-      <button class="btn-save" onclick="saveNote()">Зберегти</button>
+      <button class="btn-cancel" data-action="close">Скасувати</button>
+      <button class="btn-save" data-action="save">Зберегти</button>
     </div>
   </div>
 </div>
@@ -573,106 +573,37 @@
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
-<!-- Firebase SDK -->
 <script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { initializeApp }   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, query, orderBy }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signOut }
+import { getAuth, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signOut }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAQDvjtD4mmBS6r4TYqfq_SPYPL-7QVGwg",
-  authDomain: "notes-app-b58f8.firebaseapp.com",
-  projectId: "notes-app-b58f8",
-  storageBucket: "notes-app-b58f8.firebasestorage.app",
+// ── FIREBASE CONFIG ──
+const fbApp = initializeApp({
+  apiKey:            "AIzaSyAQDvjtD4mmBS6r4TYqfq_SPYPL-7QVGwg",
+  authDomain:        "notes-app-b58f8.firebaseapp.com",
+  projectId:         "notes-app-b58f8",
+  storageBucket:     "notes-app-b58f8.firebasestorage.app",
   messagingSenderId: "184097835729",
-  appId: "1:184097835729:web:7fc4f46e1e3643c520d3f0"
-};
-
-const fbApp  = initializeApp(firebaseConfig);
-const auth   = getAuth(fbApp);
-const fsdb   = getFirestore(fbApp);
-let   userId = null;
-let   unsubNotes   = null;
-let   unsubDeleted = null;
-
-function notesCol()   { return collection(fsdb, 'users', userId, 'notes'); }
-function deletedCol() { return collection(fsdb, 'users', userId, 'deleted'); }
-
-window.fbSaveNote    = n  => userId && setDoc(doc(notesCol(),   n.id), n);
-window.fbDeleteNote  = id => userId && deleteDoc(doc(notesCol(),   id));
-window.fbSaveDeleted = n  => userId && setDoc(doc(deletedCol(), n.id), n);
-window.fbDelDeleted  = id => userId && deleteDoc(doc(deletedCol(), id));
-
-window.signInGoogle = () => {
-  const provider = new GoogleAuthProvider();
-  const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
-  if (isMobile) {
-    signInWithRedirect(auth, provider).catch(e => window.toast('Помилка: ' + e.message));
-  } else {
-    signInWithPopup(auth, provider).catch(e => window.toast('Помилка: ' + e.message));
-  }
-};
-window.signOutUser  = () => { unsubNotes && unsubNotes(); unsubDeleted && unsubDeleted(); signOut(auth); };
-
-function startSync() {
-  if (unsubNotes)   unsubNotes();
-  if (unsubDeleted) unsubDeleted();
-  unsubNotes = onSnapshot(query(notesCol(), orderBy('created','desc')), snap => {
-    notes = window.notes = snap.docs.map(d => d.data());
-    window.renderNotes && window.renderNotes();
-  });
-  unsubDeleted = onSnapshot(query(deletedCol(), orderBy('deletedAt','desc')), snap => {
-    deletedNotes = window.deletedNotes = snap.docs.map(d => d.data());
-    if (window.currentTab === 'deleted') window.renderNotes && window.renderNotes();
-  });
-}
-
-// Handle redirect result after returning from Google
-getRedirectResult(auth).catch(e => {
-  if (e.code !== 'auth/no-current-user') console.warn('Redirect error:', e);
+  appId:             "1:184097835729:web:7fc4f46e1e3643c520d3f0"
 });
+const auth = getAuth(fbApp);
+const fsdb = getFirestore(fbApp);
 
-// Attach button listeners from module scope (inline onclick cant access module functions)
-document.addEventListener('DOMContentLoaded', () => {
-  const btnIn  = document.getElementById('signInBtn');
-  const btnOut = document.getElementById('signOutBtn');
-  if (btnIn)  btnIn.addEventListener('click',  () => window.signInGoogle());
-  if (btnOut) btnOut.addEventListener('click', () => window.signOutUser());
-});
+let userId     = null;
+let unsubN     = null;
+let unsubD     = null;
+const notesCol   = () => collection(fsdb, 'users', userId, 'notes');
+const deletedCol = () => collection(fsdb, 'users', userId, 'deleted');
 
-onAuthStateChanged(auth, user => {
-  if (user) {
-    userId = user.uid;
-    const el = document.getElementById('userEmail');
-    if (el) el.textContent = user.displayName || user.email;
-    document.getElementById('authScreen').style.display = 'none';
-    document.getElementById('appScreen').style.display  = 'flex';
-    startSync();
-    window.buildSwatches && window.buildSwatches();
-    setInterval(() => window.checkReminders && window.checkReminders(), 30000);
-  } else {
-    userId = null;
-    document.getElementById('authScreen').style.display = 'flex';
-    document.getElementById('appScreen').style.display  = 'none';
-  }
-});
-<\/script>
-
-<script>
-// Storage — тепер через Firebase (функції window.fbSave* вище)
-
-// ════════════════════════════════════════════════════════
-//  APP STATE
-// ════════════════════════════════════════════════════════
+// ── APP STATE ──
 const COLORS = [
-  { hex: '#ffffff' }, { hex: '#fff9c4' }, { hex: '#c8f5d8' },
-  { hex: '#c9e8fb' }, { hex: '#e8d5fb' }, { hex: '#ffe0cc' },
-  { hex: '#ffd5d2' }, { hex: '#e8e5e0' },
+  '#ffffff','#fff9c4','#c8f5d8','#c9e8fb',
+  '#e8d5fb','#ffe0cc','#ffd5d2','#e8e5e0'
 ];
 const REMINDER_BG = '#ffd5d2';
-
 let notes        = [];
 let deletedNotes = [];
 let currentTab   = 'notes';
@@ -681,337 +612,258 @@ let selColor     = '#ffffff';
 let recognition  = null;
 let isRecording  = false;
 
-// ════════════════════════════════════════════════════════
-//  LOAD / SAVE
-// ════════════════════════════════════════════════════════
-// loadData/saveData replaced by Firestore realtime sync
-function loadData(cb) { cb(); }
-function saveData() {}  // no-op — each op calls fbSave* directly
+// ── HELPERS ──
+function uid()    { return Date.now().toString(36)+Math.random().toString(36).slice(2); }
+function isLight(hex) {
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return (r*299+g*587+b*114)/1000>160;
+}
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function fmtDT(iso) {
+  if(!iso)return'';
+  return new Date(iso).toLocaleString('uk-UA',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+function toast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2500);
+}
 
-// ════════════════════════════════════════════════════════
-//  RENDER
-// ════════════════════════════════════════════════════════
+// ── FIREBASE OPS ──
+const fbSaveNote    = n  => userId && setDoc(doc(notesCol(),   n.id), n);
+const fbDeleteNote  = id => userId && deleteDoc(doc(notesCol(),   id));
+const fbSaveDeleted = n  => userId && setDoc(doc(deletedCol(), n.id), n);
+const fbDelDeleted  = id => userId && deleteDoc(doc(deletedCol(), id));
+
+// ── RENDER ──
 function renderNotes() {
   const content = document.getElementById('mainContent');
   const q = document.getElementById('searchInput').value.toLowerCase().trim();
-
-  let list = currentTab === 'deleted'   ? deletedNotes
-           : currentTab === 'reminders' ? notes.filter(n => !!n.reminder)
+  let list = currentTab==='deleted' ? deletedNotes
+           : currentTab==='reminders' ? notes.filter(n=>!!n.reminder)
            : notes;
-
-  if (q) {
-    list = list.filter(n =>
-      n.text.toLowerCase().includes(q) ||
-      (n.reminder  ? fmtDT(n.reminder)  : fmtDT(n.created)).toLowerCase().includes(q)
-    );
-  }
-
-  if (!list.length) {
-    const msgs = {
-      notes:     'Натисніть + щоб створити нотатку',
-      reminders: 'Нагадувань ще немає',
-      deleted:   'Видалені нотатки порожні',
-    };
-    content.innerHTML = `<div class="empty-state">
+  if(q) list=list.filter(n=>n.text.toLowerCase().includes(q)||
+    (n.reminder?fmtDT(n.reminder):fmtDT(n.created)).toLowerCase().includes(q));
+  if(!list.length){
+    const msgs={notes:'Натисніть + щоб створити нотатку',reminders:'Нагадувань ще немає',deleted:'Видалені нотатки порожні'};
+    content.innerHTML=`<div class="empty-state">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48">
         <rect x="3" y="3" width="18" height="18" rx="3"/>
         <line x1="7" y1="8" x2="17" y2="8"/>
         <line x1="7" y1="12" x2="17" y2="12"/>
       </svg>
-      <p>${q ? 'Нічого не знайдено' : msgs[currentTab]}</p>
-    </div>`;
+      <p>${q?'Нічого не знайдено':msgs[currentTab]}</p></div>`;
     return;
   }
-
-  content.innerHTML = list.map(noteHTML).join('');
+  content.innerHTML=list.map(n=>{
+    const bg=n.color||'#ffffff', ink=isLight(bg)?'#1a1814':'#faf8f5', mt=isLight(bg)?'#7a756e':'rgba(255,255,255,0.65)';
+    const isDel=currentTab==='deleted';
+    const badge=n.reminder
+      ?`<span class="note-reminder-badge" style="color:${mt}">🔔 ${fmtDT(n.reminder)}</span>`
+      :`<span class="note-date" style="color:${mt}">🕐 ${fmtDT(n.created)}</span>`;
+    const actions=isDel
+      ?`<button class="note-action-btn restore" data-action="restore" data-id="${n.id}">↩ Відновити</button>
+        <button class="note-action-btn danger"  data-action="permdelete" data-id="${n.id}">✕ Видалити назавжди</button>`
+      :`<button class="note-action-btn" data-action="edit" data-id="${n.id}">✏ Редагувати</button>
+        <button class="note-action-btn success" data-action="complete" data-id="${n.id}">✓ Виконано</button>`;
+    return `<div class="note-card${n.reminder?' is-reminder':''}" style="background:${bg};color:${ink}">
+      <div class="note-text">${esc(n.text)}</div>
+      <div class="note-meta">${badge}</div>
+      <div class="note-actions">${actions}</div></div>`;
+  }).join('');
 }
 
-function noteHTML(n) {
-  const bg  = n.color || '#ffffff';
-  const ink = isLight(bg) ? '#1a1814' : '#faf8f5';
-  const mt  = isLight(bg) ? '#7a756e' : 'rgba(255,255,255,0.65)';
-  const isDel = currentTab === 'deleted';
-
-  const badge = n.reminder
-    ? `<span class="note-reminder-badge" style="color:${mt}">
-        🔔 ${fmtDT(n.reminder)}
-       </span>`
-    : `<span class="note-date" style="color:${mt}">🕐 ${fmtDT(n.created)}</span>`;
-
-  const actions = isDel
-    ? `<button class="note-action-btn restore" onclick="restoreNote('${n.id}',event)">↩ Відновити</button>
-       <button class="note-action-btn danger"  onclick="permDelete('${n.id}',event)">✕ Видалити назавжди</button>`
-    : `<button class="note-action-btn"         onclick="openEdit('${n.id}',event)">✏ Редагувати</button>
-       <button class="note-action-btn success"  onclick="completeNote('${n.id}',event)">✓ Виконано</button>`;
-
-  return `<div class="note-card${n.reminder?' is-reminder':''}" style="background:${bg};color:${ink}">
-    <div class="note-text">${esc(n.text)}</div>
-    <div class="note-meta">${badge}</div>
-    <div class="note-actions">${actions}</div>
-  </div>`;
-}
-
-function isLight(hex) {
-  const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
-  return (r*299+g*587+b*114)/1000 > 160;
-}
-function esc(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-function fmtDT(iso) {
-  if (!iso) return '';
-  const d = new Date(iso);
-  return d.toLocaleString('uk-UA',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
-}
-function uid() { return Date.now().toString(36)+Math.random().toString(36).slice(2); }
-
-// ════════════════════════════════════════════════════════
-//  TABS
-// ════════════════════════════════════════════════════════
+// ── TABS ──
 function switchTab(tab) {
-  currentTab = tab;
-  ['Notes','Reminders','Deleted'].forEach(t =>
-    document.getElementById('tab'+t)?.classList.remove('active')
-  );
+  currentTab=tab;
+  ['Notes','Reminders','Deleted'].forEach(t=>document.getElementById('tab'+t)?.classList.remove('active'));
   document.getElementById('tab'+tab.charAt(0).toUpperCase()+tab.slice(1))?.classList.add('active');
-  document.getElementById('topbarTitle').textContent =
-    {notes:'Нотатки',reminders:'Нагадування',deleted:'Видалені'}[tab];
+  document.getElementById('topbarTitle').textContent={notes:'Нотатки',reminders:'Нагадування',deleted:'Видалені'}[tab];
   renderNotes();
 }
 
-// ════════════════════════════════════════════════════════
-//  MODAL
-// ════════════════════════════════════════════════════════
+// ── COLOR SWATCHES ──
 function buildSwatches() {
-  document.getElementById('colorSwatches').innerHTML = COLORS.map(c =>
-    `<div class="color-swatch${selColor===c.hex?' selected':''}"
-          style="background:${c.hex};border-color:${selColor===c.hex?'#1a1814':'transparent'}"
-          onclick="pickColor('${c.hex}',this)"></div>`
-  ).join('');
+  document.getElementById('colorSwatches').innerHTML=COLORS.map(hex=>
+    `<div class="color-swatch${selColor===hex?' selected':''}"
+      style="background:${hex};border-color:${selColor===hex?'#1a1814':'transparent'}"
+      data-color="${hex}"></div>`).join('');
 }
 
-function pickColor(hex, el) {
-  selColor = hex;
-  document.querySelectorAll('.color-swatch').forEach(s => {
-    s.classList.remove('selected'); s.style.borderColor='transparent';
-  });
-  el.classList.add('selected'); el.style.borderColor='#1a1814';
-}
-
+// ── MODAL ──
 function openCreateModal() {
-  editingId = null;
-  document.getElementById('modalTitle').textContent = 'Нова нотатка';
-  document.getElementById('noteText').value = '';
-  document.getElementById('reminderInput').value = '';
-  selColor = '#ffffff';
-  buildSwatches();
+  editingId=null;
+  document.getElementById('modalTitle').textContent='Нова нотатка';
+  document.getElementById('noteText').value='';
+  document.getElementById('reminderInput').value='';
+  selColor='#ffffff'; buildSwatches();
   document.getElementById('noteModal').classList.add('open');
-  setTimeout(() => document.getElementById('noteText').focus(), 200);
+  setTimeout(()=>document.getElementById('noteText').focus(),200);
 }
-
-function openEdit(id, e) {
-  if (e) e.stopPropagation();
-  const n = notes.find(n => n.id === id); if (!n) return;
-  editingId = id;
-  document.getElementById('modalTitle').textContent = 'Редагувати нотатку';
-  document.getElementById('noteText').value = n.text;
-  if (n.reminder) {
-    const d = new Date(n.reminder);
-    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
-    document.getElementById('reminderInput').value = d.toISOString().slice(0,16);
-  } else {
-    document.getElementById('reminderInput').value = '';
-  }
-  selColor = n.color || '#ffffff';
-  buildSwatches();
+function openEdit(id) {
+  const n=notes.find(n=>n.id===id); if(!n) return;
+  editingId=id;
+  document.getElementById('modalTitle').textContent='Редагувати нотатку';
+  document.getElementById('noteText').value=n.text;
+  if(n.reminder){
+    const d=new Date(n.reminder); d.setMinutes(d.getMinutes()-d.getTimezoneOffset());
+    document.getElementById('reminderInput').value=d.toISOString().slice(0,16);
+  } else { document.getElementById('reminderInput').value=''; }
+  selColor=n.color||'#ffffff'; buildSwatches();
   document.getElementById('noteModal').classList.add('open');
-  setTimeout(() => document.getElementById('noteText').focus(), 200);
+  setTimeout(()=>document.getElementById('noteText').focus(),200);
 }
-
-function closeModal() {
-  document.getElementById('noteModal').classList.remove('open');
-  stopVoice();
-}
-
-function clearReminder() { document.getElementById('reminderInput').value = ''; }
+function closeModal() { document.getElementById('noteModal').classList.remove('open'); stopVoice(); }
 
 function saveNote() {
-  const text = document.getElementById('noteText').value.trim();
-  if (!text) { toast('Введіть текст нотатки'); return; }
-
-  const raw = document.getElementById('reminderInput').value;
-  const reminder = raw ? new Date(raw).toISOString() : null;
-  const color = (reminder && selColor === '#ffffff') ? REMINDER_BG : selColor;
-
-  if (editingId) {
-    const i = notes.findIndex(n => n.id === editingId);
-    if (i !== -1) {
-      notes[i] = { ...notes[i], text, color, reminder };
-      fbSaveNote(notes[i]);
-    }
+  const text=document.getElementById('noteText').value.trim();
+  if(!text){toast('Введіть текст нотатки');return;}
+  const raw=document.getElementById('reminderInput').value;
+  const reminder=raw?new Date(raw).toISOString():null;
+  const color=(reminder&&selColor==='#ffffff')?REMINDER_BG:selColor;
+  if(editingId){
+    const i=notes.findIndex(n=>n.id===editingId);
+    if(i!==-1){notes[i]={...notes[i],text,color,reminder};fbSaveNote(notes[i]);}
   } else {
-    const note = { id: uid(), text, color, reminder, created: new Date().toISOString() };
-    notes.unshift(note);
-    fbSaveNote(note);
+    const note={id:uid(),text,color,reminder,created:new Date().toISOString()};
+    notes.unshift(note); fbSaveNote(note);
   }
-  closeModal();
-  renderNotes();
-
-  // Schedule local notification
-  if (reminder) scheduleNotif(notes.find(n => n.reminder === reminder && n.text === text));
+  closeModal(); renderNotes();
+  if(reminder) scheduleNotif(notes.find(n=>n.text===text&&n.reminder===reminder));
 }
 
-// ════════════════════════════════════════════════════════
-//  NOTE ACTIONS
-// ════════════════════════════════════════════════════════
-function completeNote(id, e) {
-  if (e) e.stopPropagation();
-  const i = notes.findIndex(n => n.id === id); if (i === -1) return;
-  const del = { ...notes[i], deletedAt: new Date().toISOString() };
-  deletedNotes.unshift(del);
-  fbSaveDeleted(del);
-  fbDeleteNote(notes[i].id);
-  notes.splice(i, 1);
-  renderNotes(); toast('Переміщено до видалених');
+// ── NOTE ACTIONS ──
+function completeNote(id) {
+  const i=notes.findIndex(n=>n.id===id); if(i===-1)return;
+  const del={...notes[i],deletedAt:new Date().toISOString()};
+  deletedNotes.unshift(del); fbSaveDeleted(del); fbDeleteNote(notes[i].id);
+  notes.splice(i,1); renderNotes(); toast('Переміщено до видалених');
 }
-
-function restoreNote(id, e) {
-  if (e) e.stopPropagation();
-  const i = deletedNotes.findIndex(n => n.id === id); if (i === -1) return;
-  const n = { ...deletedNotes[i] }; delete n.deletedAt;
-  notes.unshift(n);
-  fbSaveNote(n);
-  fbDelDeleted(deletedNotes[i].id);
-  deletedNotes.splice(i, 1);
-  renderNotes(); toast('Нотатку відновлено');
+function restoreNote(id) {
+  const i=deletedNotes.findIndex(n=>n.id===id); if(i===-1)return;
+  const n={...deletedNotes[i]}; delete n.deletedAt;
+  notes.unshift(n); fbSaveNote(n); fbDelDeleted(deletedNotes[i].id);
+  deletedNotes.splice(i,1); renderNotes(); toast('Нотатку відновлено');
 }
-
-function permDelete(id, e) {
-  if (e) e.stopPropagation();
-  fbDelDeleted(id);
-  deletedNotes = deletedNotes.filter(n => n.id !== id);
+function permDelete(id) {
+  fbDelDeleted(id); deletedNotes=deletedNotes.filter(n=>n.id!==id);
   renderNotes(); toast('Видалено назавжди');
 }
 
-// ════════════════════════════════════════════════════════
-//  VOICE
-// ════════════════════════════════════════════════════════
+// ── VOICE ──
 function toggleVoice() {
-  if (isRecording) { stopVoice(); return; }
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) { toast('Диктування не підтримується'); return; }
-
-  recognition = new SR();
-  recognition.lang = 'uk-UA';
-  recognition.interimResults = true;
-  recognition.continuous = true;
-
-  const ta = document.getElementById('noteText');
-  const base = ta.value;
-
-  recognition.onresult = ev => {
-    let fin = '', tmp = '';
-    for (let i = ev.resultIndex; i < ev.results.length; i++)
-      ev.results[i].isFinal ? (fin += ev.results[i][0].transcript) : (tmp += ev.results[i][0].transcript);
-    ta.value = base + (base && (fin||tmp) ? ' ' : '') + (fin || tmp);
+  if(isRecording){stopVoice();return;}
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){toast('Диктування не підтримується');return;}
+  recognition=new SR(); recognition.lang='uk-UA'; recognition.interimResults=true; recognition.continuous=true;
+  const ta=document.getElementById('noteText'), base=ta.value;
+  recognition.onresult=ev=>{
+    let fin='',tmp='';
+    for(let i=ev.resultIndex;i<ev.results.length;i++)
+      ev.results[i].isFinal?(fin+=ev.results[i][0].transcript):(tmp+=ev.results[i][0].transcript);
+    ta.value=base+(base&&(fin||tmp)?' ':'')+( fin||tmp);
   };
-  recognition.onerror = () => stopVoice();
-  recognition.onend   = () => { if (isRecording) recognition.start(); };
-  recognition.start();
-  isRecording = true;
-
+  recognition.onerror=()=>stopVoice();
+  recognition.onend=()=>{if(isRecording)recognition.start();};
+  recognition.start(); isRecording=true;
   document.getElementById('voiceBtn').classList.add('recording');
-  document.getElementById('voiceBtnLabel').textContent = 'Зупинити';
+  document.getElementById('voiceBtnLabel').textContent='Зупинити';
 }
-
 function stopVoice() {
-  if (recognition) { recognition.stop(); recognition = null; }
-  isRecording = false;
-  const btn = document.getElementById('voiceBtn');
-  if (btn) { btn.classList.remove('recording'); document.getElementById('voiceBtnLabel').textContent = 'Диктувати'; }
+  if(recognition){recognition.stop();recognition=null;}
+  isRecording=false;
+  const btn=document.getElementById('voiceBtn');
+  if(btn){btn.classList.remove('recording');document.getElementById('voiceBtnLabel').textContent='Диктувати';}
 }
 
-// ════════════════════════════════════════════════════════
-//  NOTIFICATIONS
-// ════════════════════════════════════════════════════════
-let notifId = 1000;
-
+// ── NOTIFICATIONS ──
+let notifId=1000;
 function scheduleNotif(note) {
-  if (!note || !note.reminder) return;
-  const at = new Date(note.reminder);
-  if (at <= new Date()) return;
-
-  // cordova-plugin-local-notification
-  if (window.cordova && window.cordova.plugins && window.cordova.plugins.notification) {
-    window.cordova.plugins.notification.local.schedule({
-      id: notifId++,
-      title: 'Нагадування',
-      text: note.text.slice(0, 100),
-      trigger: { at: at },
-      foreground: true,
+  if(!note||!note.reminder)return;
+  const at=new Date(note.reminder); if(at<=new Date())return;
+  const ms=at.getTime()-Date.now();
+  if('Notification'in window)
+    Notification.requestPermission().then(p=>{
+      if(p==='granted') setTimeout(()=>new Notification('Нагадування',{body:note.text.slice(0,100)}),ms);
     });
-    return;
-  }
-
-  // Web Notification fallback
-  const ms = at.getTime() - Date.now();
-  if ('Notification' in window) {
-    Notification.requestPermission().then(p => {
-      if (p === 'granted')
-        setTimeout(() => new Notification('Нагадування', { body: note.text.slice(0,100) }), ms);
-    });
-  }
 }
-
 function checkReminders() {
-  const now = Date.now();
-  notes.forEach(n => {
-    if (n.reminder && !n._fired) {
-      const ms = new Date(n.reminder).getTime() - now;
-      if (ms > 0 && ms < 60000) {
-        n._fired = true;
-        scheduleNotif(n);
-      }
+  notes.forEach(n=>{
+    if(n.reminder&&!n._fired){
+      const ms=new Date(n.reminder).getTime()-Date.now();
+      if(ms>0&&ms<60000){n._fired=true;scheduleNotif(n);}
     }
   });
 }
 
-// ════════════════════════════════════════════════════════
-//  TOAST
-// ════════════════════════════════════════════════════════
-function toast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  clearTimeout(t._t);
-  t._t = setTimeout(() => t.classList.remove('show'), 2500);
+// ── FIRESTORE SYNC ──
+function startSync() {
+  if(unsubN) unsubN(); if(unsubD) unsubD();
+  unsubN=onSnapshot(query(notesCol(),orderBy('created','desc')),snap=>{
+    notes=snap.docs.map(d=>d.data()); renderNotes();
+  });
+  unsubD=onSnapshot(query(deletedCol(),orderBy('deletedAt','desc')),snap=>{
+    deletedNotes=snap.docs.map(d=>d.data());
+    if(currentTab==='deleted') renderNotes();
+  });
 }
 
-// ════════════════════════════════════════════════════════
-//  EVENTS
-// ════════════════════════════════════════════════════════
-document.getElementById('searchInput').addEventListener('input', renderNotes);
-document.getElementById('noteModal').addEventListener('click', function(e) {
-  if (e.target === this) closeModal();
+// ── AUTH ──
+getRedirectResult(auth).catch(()=>{});
+
+onAuthStateChanged(auth, user=>{
+  if(user){
+    userId=user.uid;
+    const el=document.getElementById('userEmail');
+    if(el) el.textContent=user.displayName||user.email;
+    document.getElementById('authScreen').style.display='none';
+    document.getElementById('appScreen').style.display='flex';
+    startSync(); buildSwatches();
+    setInterval(checkReminders,30000);
+  } else {
+    userId=null;
+    document.getElementById('authScreen').style.display='flex';
+    document.getElementById('appScreen').style.display='none';
+  }
 });
 
-// ════════════════════════════════════════════════════════
-//  INIT — wait for deviceready if Cordova, else start now
-// ════════════════════════════════════════════════════════
-// startApp is triggered by Firebase onAuthStateChanged
-// expose needed functions to window for Firebase module scope
-window.renderNotes    = renderNotes;
-window.buildSwatches  = buildSwatches;
-window.checkReminders = checkReminders;
-window.notes          = notes;
-window.deletedNotes   = deletedNotes;
-window.currentTab     = currentTab;
+// ── EVENT DELEGATION (replaces all inline onclick) ──
+document.addEventListener('click', e=>{
+  const t=e.target.closest('[data-action]');
+  if(t){
+    e.stopPropagation();
+    const {action,id,tab,color}=t.dataset;
+    if(action==='edit')       openEdit(id);
+    if(action==='complete')   completeNote(id);
+    if(action==='restore')    restoreNote(id);
+    if(action==='permdelete') permDelete(id);
+    if(action==='tab')        switchTab(tab);
+    if(action==='new')        openCreateModal();
+    if(action==='save')       saveNote();
+    if(action==='close')      closeModal();
+    if(action==='cleardate')  document.getElementById('reminderInput').value='';
+    if(action==='voice')      toggleVoice();
+    if(action==='signin')     signInWithRedirect(auth,new GoogleAuthProvider());
+    if(action==='signout')    { if(unsubN)unsubN(); if(unsubD)unsubD(); signOut(auth); }
+    if(action==='color'){
+      selColor=color;
+      document.querySelectorAll('.color-swatch').forEach(s=>{
+        s.classList.toggle('selected',s.dataset.color===color);
+        s.style.borderColor=s.dataset.color===color?'#1a1814':'transparent';
+      });
+    }
+    return;
+  }
+  if(e.target===document.getElementById('noteModal')) closeModal();
+});
 
-// ── PWA: реєстрація Service Worker ──
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js')
-    .catch(err => console.warn('SW error:', err));
-}
+document.getElementById('searchInput').addEventListener('input',renderNotes);
+
+// ── PWA SERVICE WORKER ──
+if('serviceWorker'in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+
 </script>
+
 </div><!-- /appScreen -->
 </body>
 </html>
