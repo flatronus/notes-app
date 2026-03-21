@@ -578,7 +578,7 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, query, orderBy }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut }
+import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signOut }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
 const firebaseConfig = {
@@ -605,8 +605,15 @@ window.fbDeleteNote  = id => userId && deleteDoc(doc(notesCol(),   id));
 window.fbSaveDeleted = n  => userId && setDoc(doc(deletedCol(), n.id), n);
 window.fbDelDeleted  = id => userId && deleteDoc(doc(deletedCol(), id));
 
-window.signInGoogle = () =>
-  signInWithPopup(auth, new GoogleAuthProvider()).catch(e => window.toast('Помилка: ' + e.message));
+window.signInGoogle = () => {
+  const provider = new GoogleAuthProvider();
+  const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
+  if (isMobile) {
+    signInWithRedirect(auth, provider).catch(e => window.toast('Помилка: ' + e.message));
+  } else {
+    signInWithPopup(auth, provider).catch(e => window.toast('Помилка: ' + e.message));
+  }
+};
 window.signOutUser  = () => { unsubNotes && unsubNotes(); unsubDeleted && unsubDeleted(); signOut(auth); };
 
 function startSync() {
@@ -621,6 +628,11 @@ function startSync() {
     if (window.currentTab === 'deleted') window.renderNotes && window.renderNotes();
   });
 }
+
+// Handle redirect result after returning from Google
+getRedirectResult(auth).catch(e => {
+  if (e.code !== 'auth/no-current-user') console.warn('Redirect error:', e);
+});
 
 onAuthStateChanged(auth, user => {
   if (user) {
