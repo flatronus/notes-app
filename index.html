@@ -441,9 +441,32 @@
 </head>
 <body>
 
+<!-- AUTH SCREEN -->
+<div id="authScreen" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:24px;background:var(--bg);padding:32px;text-align:center;">
+  <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#c0392b" stroke-width="1.5">
+    <rect x="3" y="3" width="18" height="18" rx="3"/>
+    <line x1="7" y1="8" x2="17" y2="8"/>
+    <line x1="7" y1="12" x2="17" y2="12"/>
+    <line x1="7" y1="16" x2="13" y2="16"/>
+  </svg>
+  <div>
+    <div style="font-size:22px;font-weight:700;margin-bottom:6px;">Нотатки</div>
+    <div style="font-size:14px;color:var(--ink-muted);">Увійдіть щоб синхронізувати нотатки між пристроями</div>
+  </div>
+  <button onclick="signInGoogle()" style="display:flex;align-items:center;gap:10px;padding:12px 24px;background:#fff;border:1.5px solid var(--border);border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;font-family:var(--font);box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+    <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+    Увійти через Google
+  </button>
+</div>
+
+<!-- APP SCREEN -->
+<div id="appScreen" style="display:none;flex-direction:column;height:100vh;">
+
 <!-- TOP BAR -->
 <div class="topbar">
   <div class="topbar-title" id="topbarTitle">Нотатки</div>
+  <span id="userEmail" style="font-size:11px;color:var(--ink-muted);max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+  <button onclick="signOutUser()" style="border:none;background:none;cursor:pointer;color:var(--ink-muted);font-size:11px;font-family:var(--font);padding:4px 6px;border-radius:6px;border:1px solid var(--border);">Вийти</button>
   <div class="search-wrap">
     <span class="search-icon">
       <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
@@ -550,71 +573,75 @@
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
-<!-- cordova.js буде автоматично додано Cordova при збірці -->
-<script src="cordova.js"></script>
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, query, orderBy }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAQDvjtD4mmBS6r4TYqfq_SPYPL-7QVGwg",
+  authDomain: "notes-app-b58f8.firebaseapp.com",
+  projectId: "notes-app-b58f8",
+  storageBucket: "notes-app-b58f8.firebasestorage.app",
+  messagingSenderId: "184097835729",
+  appId: "1:184097835729:web:7fc4f46e1e3643c520d3f0"
+};
+
+const fbApp  = initializeApp(firebaseConfig);
+const auth   = getAuth(fbApp);
+const fsdb   = getFirestore(fbApp);
+let   userId = null;
+let   unsubNotes   = null;
+let   unsubDeleted = null;
+
+function notesCol()   { return collection(fsdb, 'users', userId, 'notes'); }
+function deletedCol() { return collection(fsdb, 'users', userId, 'deleted'); }
+
+window.fbSaveNote    = n  => userId && setDoc(doc(notesCol(),   n.id), n);
+window.fbDeleteNote  = id => userId && deleteDoc(doc(notesCol(),   id));
+window.fbSaveDeleted = n  => userId && setDoc(doc(deletedCol(), n.id), n);
+window.fbDelDeleted  = id => userId && deleteDoc(doc(deletedCol(), id));
+
+window.signInGoogle = () =>
+  signInWithPopup(auth, new GoogleAuthProvider()).catch(e => window.toast('Помилка: ' + e.message));
+window.signOutUser  = () => { unsubNotes && unsubNotes(); unsubDeleted && unsubDeleted(); signOut(auth); };
+
+function startSync() {
+  if (unsubNotes)   unsubNotes();
+  if (unsubDeleted) unsubDeleted();
+  unsubNotes = onSnapshot(query(notesCol(), orderBy('created','desc')), snap => {
+    notes = window.notes = snap.docs.map(d => d.data());
+    window.renderNotes && window.renderNotes();
+  });
+  unsubDeleted = onSnapshot(query(deletedCol(), orderBy('deletedAt','desc')), snap => {
+    deletedNotes = window.deletedNotes = snap.docs.map(d => d.data());
+    if (window.currentTab === 'deleted') window.renderNotes && window.renderNotes();
+  });
+}
+
+onAuthStateChanged(auth, user => {
+  if (user) {
+    userId = user.uid;
+    const el = document.getElementById('userEmail');
+    if (el) el.textContent = user.displayName || user.email;
+    document.getElementById('authScreen').style.display = 'none';
+    document.getElementById('appScreen').style.display  = 'flex';
+    startSync();
+    window.buildSwatches && window.buildSwatches();
+    setInterval(() => window.checkReminders && window.checkReminders(), 30000);
+  } else {
+    userId = null;
+    document.getElementById('authScreen').style.display = 'flex';
+    document.getElementById('appScreen').style.display  = 'none';
+  }
+});
+<\/script>
 
 <script>
-// ════════════════════════════════════════════════════════
-//  STORAGE — localStorage + SQLite (Cordova)
-// ════════════════════════════════════════════════════════
-let db = null;
-let USE_SQLITE = false;
-
-function initStorage(callback) {
-  if (window.sqlitePlugin) {
-    USE_SQLITE = true;
-    db = window.sqlitePlugin.openDatabase(
-      { name: 'notes.db', location: 'default' },
-      function() {
-        db.transaction(function(tx) {
-          tx.executeSql(
-            'CREATE TABLE IF NOT EXISTS store (key TEXT PRIMARY KEY, value TEXT)'
-          );
-        }, null, callback);
-      },
-      function(err) {
-        console.warn('SQLite open error, fallback to localStorage', err);
-        USE_SQLITE = false;
-        callback();
-      }
-    );
-  } else {
-    callback();
-  }
-}
-
-function storageGet(key, cb) {
-  if (USE_SQLITE && db) {
-    db.transaction(function(tx) {
-      tx.executeSql('SELECT value FROM store WHERE key=?', [key],
-        function(tx, res) {
-          if (res.rows.length > 0) {
-            try { cb(JSON.parse(res.rows.item(0).value)); }
-            catch(e) { cb(null); }
-          } else { cb(null); }
-        },
-        function() { cb(null); }
-      );
-    });
-  } else {
-    try { cb(JSON.parse(localStorage.getItem(key))); }
-    catch(e) { cb(null); }
-  }
-}
-
-function storageSet(key, value) {
-  const str = JSON.stringify(value);
-  if (USE_SQLITE && db) {
-    db.transaction(function(tx) {
-      tx.executeSql(
-        'INSERT OR REPLACE INTO store (key, value) VALUES (?,?)',
-        [key, str]
-      );
-    });
-  } else {
-    localStorage.setItem(key, str);
-  }
-}
+// Storage — тепер через Firebase (функції window.fbSave* вище)
 
 // ════════════════════════════════════════════════════════
 //  APP STATE
@@ -637,20 +664,9 @@ let isRecording  = false;
 // ════════════════════════════════════════════════════════
 //  LOAD / SAVE
 // ════════════════════════════════════════════════════════
-function loadData(cb) {
-  storageGet('notes_v1', function(n) {
-    notes = n || [];
-    storageGet('deleted_v1', function(d) {
-      deletedNotes = d || [];
-      cb();
-    });
-  });
-}
-
-function saveData() {
-  storageSet('notes_v1', notes);
-  storageSet('deleted_v1', deletedNotes);
-}
+// loadData/saveData replaced by Firestore realtime sync
+function loadData(cb) { cb(); }
+function saveData() {}  // no-op — each op calls fbSave* directly
 
 // ════════════════════════════════════════════════════════
 //  RENDER
@@ -809,12 +825,15 @@ function saveNote() {
 
   if (editingId) {
     const i = notes.findIndex(n => n.id === editingId);
-    if (i !== -1) notes[i] = { ...notes[i], text, color, reminder };
+    if (i !== -1) {
+      notes[i] = { ...notes[i], text, color, reminder };
+      fbSaveNote(notes[i]);
+    }
   } else {
-    notes.unshift({ id: uid(), text, color, reminder, created: new Date().toISOString() });
+    const note = { id: uid(), text, color, reminder, created: new Date().toISOString() };
+    notes.unshift(note);
+    fbSaveNote(note);
   }
-
-  saveData();
   closeModal();
   renderNotes();
 
@@ -828,23 +847,30 @@ function saveNote() {
 function completeNote(id, e) {
   if (e) e.stopPropagation();
   const i = notes.findIndex(n => n.id === id); if (i === -1) return;
-  deletedNotes.unshift({ ...notes[i], deletedAt: new Date().toISOString() });
+  const del = { ...notes[i], deletedAt: new Date().toISOString() };
+  deletedNotes.unshift(del);
+  fbSaveDeleted(del);
+  fbDeleteNote(notes[i].id);
   notes.splice(i, 1);
-  saveData(); renderNotes(); toast('Переміщено до видалених');
+  renderNotes(); toast('Переміщено до видалених');
 }
 
 function restoreNote(id, e) {
   if (e) e.stopPropagation();
   const i = deletedNotes.findIndex(n => n.id === id); if (i === -1) return;
   const n = { ...deletedNotes[i] }; delete n.deletedAt;
-  notes.unshift(n); deletedNotes.splice(i, 1);
-  saveData(); renderNotes(); toast('Нотатку відновлено');
+  notes.unshift(n);
+  fbSaveNote(n);
+  fbDelDeleted(deletedNotes[i].id);
+  deletedNotes.splice(i, 1);
+  renderNotes(); toast('Нотатку відновлено');
 }
 
 function permDelete(id, e) {
   if (e) e.stopPropagation();
+  fbDelDeleted(id);
   deletedNotes = deletedNotes.filter(n => n.id !== id);
-  saveData(); renderNotes(); toast('Видалено назавжди');
+  renderNotes(); toast('Видалено назавжди');
 }
 
 // ════════════════════════════════════════════════════════
@@ -951,17 +977,14 @@ document.getElementById('noteModal').addEventListener('click', function(e) {
 // ════════════════════════════════════════════════════════
 //  INIT — wait for deviceready if Cordova, else start now
 // ════════════════════════════════════════════════════════
-function startApp() {
-  initStorage(function() {
-    loadData(function() {
-      buildSwatches();
-      renderNotes();
-      setInterval(checkReminders, 30000);
-    });
-  });
-}
-
-document.addEventListener('DOMContentLoaded', startApp);
+// startApp is triggered by Firebase onAuthStateChanged
+// expose needed functions to window for Firebase module scope
+window.renderNotes    = renderNotes;
+window.buildSwatches  = buildSwatches;
+window.checkReminders = checkReminders;
+window.notes          = notes;
+window.deletedNotes   = deletedNotes;
+window.currentTab     = currentTab;
 
 // ── PWA: реєстрація Service Worker ──
 if ('serviceWorker' in navigator) {
@@ -969,5 +992,6 @@ if ('serviceWorker' in navigator) {
     .catch(err => console.warn('SW error:', err));
 }
 </script>
+</div><!-- /appScreen -->
 </body>
 </html>
