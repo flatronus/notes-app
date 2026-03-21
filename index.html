@@ -809,21 +809,47 @@ function startSync() {
 }
 
 // ── AUTH ──
-getRedirectResult(auth).catch(()=>{});
+// Wait for redirect result first, then check auth state
+let appStarted = false;
 
-onAuthStateChanged(auth, user=>{
-  if(user){
-    userId=user.uid;
-    const el=document.getElementById('userEmail');
-    if(el) el.textContent=user.displayName||user.email;
-    document.getElementById('authScreen').style.display='none';
-    document.getElementById('appScreen').style.display='flex';
-    startSync(); buildSwatches();
-    setInterval(checkReminders,30000);
+function showApp(user) {
+  if(appStarted) return;
+  appStarted = true;
+  userId = user.uid;
+  const el = document.getElementById('userEmail');
+  if(el) el.textContent = user.displayName || user.email;
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('appScreen').style.display  = 'flex';
+  startSync();
+  buildSwatches();
+  setInterval(checkReminders, 30000);
+}
+
+function showAuth() {
+  userId = null;
+  document.getElementById('authScreen').style.display = 'flex';
+  document.getElementById('appScreen').style.display  = 'none';
+}
+
+// First: check if we just returned from Google redirect
+getRedirectResult(auth).then(result => {
+  if(result && result.user) {
+    showApp(result.user);
+  }
+}).catch(e => {
+  if(e && e.code !== 'auth/no-current-user') console.warn('Redirect error:', e.code);
+});
+
+// Second: listen for ongoing auth state
+onAuthStateChanged(auth, user => {
+  if(user) {
+    showApp(user);
   } else {
-    userId=null;
-    document.getElementById('authScreen').style.display='flex';
-    document.getElementById('appScreen').style.display='none';
+    // Only show auth if redirect is not in progress
+    // Check if URL has redirect params (Firebase adds them)
+    const isReturningFromRedirect = location.href.includes('__/auth/handler') 
+      || document.cookie.includes('firebase');
+    if(!isReturningFromRedirect) showAuth();
   }
 });
 
