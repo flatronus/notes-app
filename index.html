@@ -328,15 +328,16 @@
     height: 24px;
     border-radius: 6px;
     border: 2.5px solid transparent;
-    cursor: pointer;
+    cursor: pointer !important;
+    pointer-events: all !important;
     transition: transform .15s;
+    -webkit-tap-highlight-color: rgba(0,0,0,0.1);
   }
   .color-swatch:hover { transform: scale(1.1); }
   .color-swatch.selected { border-color: var(--ink); }
   .color-swatch.swatch-none {
     background: var(--bg);
     border: 2px dashed var(--ink-faint);
-    position: relative;
   }
 
   /* DATE INPUT */
@@ -723,14 +724,31 @@ function switchTab(tab) {
 
 // ── COLOR SWATCHES ──
 function buildSwatches() {
-  document.getElementById('colorSwatches').innerHTML = LABEL_COLORS.map(c => {
+  const wrap = document.getElementById('colorSwatches');
+  wrap.innerHTML = LABEL_COLORS.map(c => {
     const isNone = c.hex === '#ffffff';
     const bg = isNone ? 'var(--bg)' : c.hex;
     const sel = selColor === c.hex;
-    return `<div class="color-swatch${sel?' selected':''} ${isNone?'swatch-none':''}"
+    return `<div class="color-swatch${sel?' selected':''}${isNone?' swatch-none':''}"
       style="background:${bg};border-color:${sel?'#1a1814':'transparent'}"
-      title="${c.name}" data-action="color" data-color="${c.hex}"></div>`;
+      title="${c.name}" data-color="${c.hex}"></div>`;
   }).join('');
+  // Attach direct listeners — reliable on all browsers including mobile
+  wrap.querySelectorAll('.color-swatch').forEach(el => {
+    el.addEventListener('click', function(e) {
+      e.stopPropagation();
+      selColor = this.dataset.color;
+      wrap.querySelectorAll('.color-swatch').forEach(s => {
+        const active = s.dataset.color === selColor;
+        s.classList.toggle('selected', active);
+        s.style.borderColor = active ? '#1a1814' : 'transparent';
+      });
+    });
+    el.addEventListener('touchend', function(e) {
+      e.preventDefault();
+      this.click();
+    });
+  });
 }
 
 // ── MODAL ──
