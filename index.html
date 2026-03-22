@@ -153,10 +153,24 @@
   /* NOTE CARD */
   .note-card {
     border-radius: var(--radius);
-    padding: 14px 15px;
     margin-bottom: 10px;
     box-shadow: var(--shadow);
     word-break: break-word;
+    display: flex;
+    overflow: hidden;
+    background: #ffffff;
+  }
+
+  .note-label-bar {
+    width: 12px;
+    flex-shrink: 0;
+    border-radius: 0;
+  }
+
+  .note-body {
+    flex: 1;
+    padding: 14px 15px;
+    min-width: 0;
   }
 
   .note-text {
@@ -165,6 +179,7 @@
     white-space: pre-wrap;
     user-select: text;
     -webkit-user-select: text;
+    color: #1a1814;
   }
 
   .note-meta {
@@ -177,6 +192,7 @@
 
   .note-date {
     font-size: 11px;
+    color: var(--ink-muted);
     display: flex;
     align-items: center;
     gap: 4px;
@@ -188,7 +204,8 @@
     gap: 4px;
     font-size: 11px;
     font-weight: 600;
-    background: rgba(0,0,0,0.1);
+    color: var(--accent);
+    background: rgba(192,57,43,0.08);
     border-radius: 6px;
     padding: 2px 7px;
   }
@@ -202,7 +219,7 @@
 
   .note-action-btn {
     border: none;
-    background: rgba(0,0,0,0.08);
+    background: rgba(0,0,0,0.06);
     border-radius: 7px;
     padding: 7px 12px;
     font-family: var(--font);
@@ -214,7 +231,7 @@
     gap: 4px;
     color: var(--ink);
   }
-  .note-action-btn.danger { color: var(--accent); }
+  .note-action-btn.danger  { color: var(--accent); }
   .note-action-btn.success { color: #27ae60; }
   .note-action-btn.restore { background: rgba(39,174,96,0.12); color: #27ae60; }
 
@@ -307,13 +324,20 @@
   .color-swatches { display: flex; gap: 7px; flex-wrap: wrap; }
 
   .color-swatch {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
+    width: 40px;
+    height: 24px;
+    border-radius: 6px;
     border: 2.5px solid transparent;
     cursor: pointer;
+    transition: transform .15s;
   }
+  .color-swatch:hover { transform: scale(1.1); }
   .color-swatch.selected { border-color: var(--ink); }
+  .color-swatch.swatch-none {
+    background: var(--bg);
+    border: 2px dashed var(--ink-faint);
+    position: relative;
+  }
 
   /* DATE INPUT */
   .date-label {
@@ -436,7 +460,7 @@
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-  .note-card.is-reminder { border-left: 3px solid var(--accent); }
+
 </style>
 </head>
 <body>
@@ -544,7 +568,7 @@
 
     <!-- Color -->
     <div class="form-row">
-      <span class="form-label">Колір:</span>
+      <span class="form-label">Ярлик:</span>
       <div class="color-swatches" id="colorSwatches"></div>
     </div>
 
@@ -599,16 +623,23 @@ const notesCol   = () => collection(fsdb, 'users', userId, 'notes');
 const deletedCol = () => collection(fsdb, 'users', userId, 'deleted');
 
 // ── APP STATE ──
-const COLORS = [
-  '#ffffff','#fff9c4','#c8f5d8','#c9e8fb',
-  '#e8d5fb','#ffe0cc','#ffd5d2','#e8e5e0'
+// Label (left border) colors
+const LABEL_COLORS = [
+  { hex: '#ffffff', name: 'Без ярлика' },
+  { hex: '#e53935', name: 'Червоний'   },
+  { hex: '#fb8c00', name: 'Помаранчевий' },
+  { hex: '#fdd835', name: 'Жовтий'     },
+  { hex: '#43a047', name: 'Зелений'    },
+  { hex: '#1e88e5', name: 'Синій'      },
+  { hex: '#8e24aa', name: 'Фіолетовий' },
+  { hex: '#6d4c41', name: 'Коричневий' },
 ];
-const REMINDER_BG = '#ffd5d2';
+const REMINDER_LABEL = '#e53935'; // red label for reminders
 let notes        = [];
 let deletedNotes = [];
 let currentTab   = 'notes';
 let editingId    = null;
-let selColor     = '#ffffff';
+let selColor     = '#ffffff'; // label color
 let recognition  = null;
 let isRecording  = false;
 
@@ -656,20 +687,28 @@ function renderNotes() {
     return;
   }
   content.innerHTML=list.map(n=>{
-    const bg=n.color||'#ffffff', ink=isLight(bg)?'#1a1814':'#faf8f5', mt=isLight(bg)?'#7a756e':'rgba(255,255,255,0.65)';
-    const isDel=currentTab==='deleted';
-    const badge=n.reminder
-      ?`<span class="note-reminder-badge" style="color:${mt}">🔔 ${fmtDT(n.reminder)}</span>`
-      :`<span class="note-date" style="color:${mt}">🕐 ${fmtDT(n.created)}</span>`;
-    const actions=isDel
-      ?`<button class="note-action-btn restore" data-action="restore" data-id="${n.id}">↩ Відновити</button>
-        <button class="note-action-btn danger"  data-action="permdelete" data-id="${n.id}">✕ Видалити назавжди</button>`
-      :`<button class="note-action-btn" data-action="edit" data-id="${n.id}">✏ Редагувати</button>
-        <button class="note-action-btn success" data-action="complete" data-id="${n.id}">✓ Виконано</button>`;
-    return `<div class="note-card${n.reminder?' is-reminder':''}" style="background:${bg};color:${ink}">
-      <div class="note-text">${esc(n.text)}</div>
-      <div class="note-meta">${badge}</div>
-      <div class="note-actions">${actions}</div></div>`;
+    const label = n.labelColor && n.labelColor !== '#ffffff' ? n.labelColor : null;
+    const reminderLabel = n.reminder ? REMINDER_LABEL : null;
+    const activeLabel = label || (n.reminder ? reminderLabel : null);
+    const isDel = currentTab==='deleted';
+    const badge = n.reminder
+      ? `<span class="note-reminder-badge">🔔 ${fmtDT(n.reminder)}</span>`
+      : `<span class="note-date">🕐 ${fmtDT(n.created)}</span>`;
+    const actions = isDel
+      ? `<button class="note-action-btn restore" data-action="restore" data-id="${n.id}">↩ Відновити</button>
+         <button class="note-action-btn danger" data-action="permdelete" data-id="${n.id}">✕ Видалити назавжди</button>`
+      : `<button class="note-action-btn" data-action="edit" data-id="${n.id}">✏ Редагувати</button>
+         <button class="note-action-btn success" data-action="complete" data-id="${n.id}">✓ Виконано</button>`;
+    const labelBar = activeLabel
+      ? `<div class="note-label-bar" style="background:${activeLabel}"></div>`
+      : '';
+    return `<div class="note-card" style="background:#ffffff">
+      ${labelBar}
+      <div class="note-body">
+        <div class="note-text">${esc(n.text)}</div>
+        <div class="note-meta">${badge}</div>
+        <div class="note-actions">${actions}</div>
+      </div></div>`;
   }).join('');
 }
 
@@ -684,10 +723,14 @@ function switchTab(tab) {
 
 // ── COLOR SWATCHES ──
 function buildSwatches() {
-  document.getElementById('colorSwatches').innerHTML=COLORS.map(hex=>
-    `<div class="color-swatch${selColor===hex?' selected':''}"
-      style="background:${hex};border-color:${selColor===hex?'#1a1814':'transparent'}"
-      data-color="${hex}"></div>`).join('');
+  document.getElementById('colorSwatches').innerHTML = LABEL_COLORS.map(c => {
+    const isNone = c.hex === '#ffffff';
+    const bg = isNone ? 'var(--bg)' : c.hex;
+    const sel = selColor === c.hex;
+    return `<div class="color-swatch${sel?' selected':''} ${isNone?'swatch-none':''}"
+      style="background:${bg};border-color:${sel?'#1a1814':'transparent'}"
+      title="${c.name}" data-action="color" data-color="${c.hex}"></div>`;
+  }).join('');
 }
 
 // ── MODAL ──
@@ -709,7 +752,7 @@ function openEdit(id) {
     const d=new Date(n.reminder); d.setMinutes(d.getMinutes()-d.getTimezoneOffset());
     document.getElementById('reminderInput').value=d.toISOString().slice(0,16);
   } else { document.getElementById('reminderInput').value=''; }
-  selColor=n.color||'#ffffff'; buildSwatches();
+  selColor=n.labelColor||'#ffffff'; buildSwatches();
   document.getElementById('noteModal').classList.add('open');
   setTimeout(()=>document.getElementById('noteText').focus(),200);
 }
@@ -720,12 +763,12 @@ function saveNote() {
   if(!text){toast('Введіть текст нотатки');return;}
   const raw=document.getElementById('reminderInput').value;
   const reminder=raw?new Date(raw).toISOString():null;
-  const color=(reminder&&selColor==='#ffffff')?REMINDER_BG:selColor;
+  const labelColor=(reminder&&selColor==='#ffffff')?REMINDER_LABEL:selColor;
   if(editingId){
     const i=notes.findIndex(n=>n.id===editingId);
-    if(i!==-1){notes[i]={...notes[i],text,color,reminder};fbSaveNote(notes[i]);}
+    if(i!==-1){notes[i]={...notes[i],text,labelColor,reminder};fbSaveNote(notes[i]);}
   } else {
-    const note={id:uid(),text,color,reminder,created:new Date().toISOString()};
+    const note={id:uid(),text,labelColor,reminder,created:new Date().toISOString()};
     notes.unshift(note); fbSaveNote(note);
   }
   closeModal(); renderNotes();
