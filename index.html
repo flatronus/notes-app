@@ -577,7 +577,7 @@
 import { initializeApp }   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, query, orderBy }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-import { getAuth, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signOut }
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, browserLocalPersistence, setPersistence }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
 // ── FIREBASE CONFIG ──
@@ -809,12 +809,7 @@ function startSync() {
 }
 
 // ── AUTH ──
-// Wait for redirect result first, then check auth state
-let appStarted = false;
-
 function showApp(user) {
-  if(appStarted) return;
-  appStarted = true;
   userId = user.uid;
   const el = document.getElementById('userEmail');
   if(el) el.textContent = user.displayName || user.email;
@@ -831,26 +826,12 @@ function showAuth() {
   document.getElementById('appScreen').style.display  = 'none';
 }
 
-// First: check if we just returned from Google redirect
-getRedirectResult(auth).then(result => {
-  if(result && result.user) {
-    showApp(result.user);
-  }
-}).catch(e => {
-  if(e && e.code !== 'auth/no-current-user') console.warn('Redirect error:', e.code);
-});
-
-// Second: listen for ongoing auth state
-onAuthStateChanged(auth, user => {
-  if(user) {
-    showApp(user);
-  } else {
-    // Only show auth if redirect is not in progress
-    // Check if URL has redirect params (Firebase adds them)
-    const isReturningFromRedirect = location.href.includes('__/auth/handler') 
-      || document.cookie.includes('firebase');
-    if(!isReturningFromRedirect) showAuth();
-  }
+// Set persistence to LOCAL so session survives page reload
+setPersistence(auth, browserLocalPersistence).then(() => {
+  // After persistence is set, listen for auth state
+  onAuthStateChanged(auth, user => {
+    if(user) { showApp(user); } else { showAuth(); }
+  });
 });
 
 // ── EVENT DELEGATION (replaces all inline onclick) ──
@@ -869,7 +850,10 @@ document.addEventListener('click', e=>{
     if(action==='close')      closeModal();
     if(action==='cleardate')  document.getElementById('reminderInput').value='';
     if(action==='voice')      toggleVoice();
-    if(action==='signin')     signInWithRedirect(auth,new GoogleAuthProvider());
+    if(action==='signin') {
+      signInWithPopup(auth, new GoogleAuthProvider())
+        .catch(e => toast('Помилка входу: ' + (e.code || e.message)));
+    }
     if(action==='signout')    { if(unsubN)unsubN(); if(unsubD)unsubD(); signOut(auth); }
     if(action==='color'){
       selColor=color;
