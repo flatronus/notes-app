@@ -943,9 +943,30 @@ function showAuth() {
 
 // Set persistence to LOCAL so session survives page reload
 setPersistence(auth, browserLocalPersistence).then(() => {
-  // After persistence is set, listen for auth state
+  // If user was previously logged in, localStorage will have a Firebase key.
+  // We can detect this to avoid flashing the login screen.
+  const wasLoggedIn = Object.keys(localStorage).some(k => k.startsWith('firebase:authUser'));
+
   onAuthStateChanged(auth, user => {
-    if(user) { showApp(user); } else { showAuth(); }
+    if(user) {
+      // Save flag so next load knows user was logged in
+      localStorage.setItem('notes_was_logged_in', '1');
+      showApp(user);
+    } else {
+      // Only show login if user was never logged in before
+      const wasLogged = localStorage.getItem('notes_was_logged_in') === '1';
+      if(wasLogged) {
+        // Wait a bit — Firebase may still be restoring the session
+        setTimeout(() => {
+          if(!auth.currentUser) {
+            localStorage.removeItem('notes_was_logged_in');
+            showAuth();
+          }
+        }, 3000);
+      } else {
+        showAuth();
+      }
+    }
   });
 });
 
