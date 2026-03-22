@@ -461,13 +461,39 @@
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
+  @keyframes loaderPulse {
+    0%, 100% { transform: scale(0.6); opacity: 0.4; }
+    50%       { transform: scale(1);   opacity: 1; }
+  }
+  .loader-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: loaderPulse 1s ease-in-out infinite;
+  }
+
 
 </style>
 </head>
 <body>
 
+<!-- LOADING SCREEN -->
+<div id="loadingScreen" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:16px;background:var(--bg);">
+  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#c0392b" stroke-width="1.5">
+    <rect x="3" y="3" width="18" height="18" rx="3"/>
+    <line x1="7" y1="8" x2="17" y2="8"/>
+    <line x1="7" y1="12" x2="17" y2="12"/>
+    <line x1="7" y1="16" x2="13" y2="16"/>
+  </svg>
+  <div style="display:flex;gap:6px;align-items:center;">
+    <div class="loader-dot"></div>
+    <div class="loader-dot" style="animation-delay:.2s"></div>
+    <div class="loader-dot" style="animation-delay:.4s"></div>
+  </div>
+</div>
+
 <!-- AUTH SCREEN -->
-<div id="authScreen" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:24px;background:var(--bg);padding:32px;text-align:center;">
+<div id="authScreen" style="display:none;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:24px;background:var(--bg);padding:32px;text-align:center;">
   <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#c0392b" stroke-width="1.5">
     <rect x="3" y="3" width="18" height="18" rx="3"/>
     <line x1="7" y1="8" x2="17" y2="8"/>
@@ -891,10 +917,16 @@ function startSync() {
 }
 
 // ── AUTH ──
+function hideLoading() {
+  const el = document.getElementById('loadingScreen');
+  if(el) el.style.display = 'none';
+}
+
 function showApp(user) {
   userId = user.uid;
   const el = document.getElementById('userEmail');
   if(el) el.textContent = user.displayName || user.email;
+  hideLoading();
   document.getElementById('authScreen').style.display = 'none';
   document.getElementById('appScreen').style.display  = 'flex';
   startSync();
@@ -904,6 +936,7 @@ function showApp(user) {
 
 function showAuth() {
   userId = null;
+  hideLoading();
   document.getElementById('authScreen').style.display = 'flex';
   document.getElementById('appScreen').style.display  = 'none';
 }
