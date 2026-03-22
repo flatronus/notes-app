@@ -714,7 +714,9 @@ function renderNotes() {
     return;
   }
   content.innerHTML=list.map(n=>{
-    const hasLabel = n.labelColor && n.labelColor !== '#ffffff';
+    // Default label is green for notes without labelColor (old notes) or newly created
+    const effectiveLabel = n.labelColor !== undefined ? n.labelColor : '#43a047';
+    const hasLabel = effectiveLabel && effectiveLabel !== '#ffffff';
     const cardBg   = n.reminder ? '#fffde7' : '#ffffff'; // жовтий для нагадувань
     const isDel    = currentTab==='deleted';
     const badge    = n.reminder
@@ -726,7 +728,7 @@ function renderNotes() {
       : `<button class="note-action-btn" data-action="edit" data-id="${n.id}">✏ Редагувати</button>
          <button class="note-action-btn success" data-action="complete" data-id="${n.id}">✓ Виконано</button>`;
     const labelBar = hasLabel
-      ? `<div class="note-label-bar" style="background:${n.labelColor}"></div>`
+      ? `<div class="note-label-bar" style="background:${effectiveLabel}"></div>`
       : '';
     return `<div class="note-card" style="background:${cardBg}">
       ${labelBar}
