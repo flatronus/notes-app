@@ -688,22 +688,21 @@ function renderNotes() {
     return;
   }
   content.innerHTML=list.map(n=>{
-    const label = n.labelColor && n.labelColor !== '#ffffff' ? n.labelColor : null;
-    const reminderLabel = n.reminder ? REMINDER_LABEL : null;
-    const activeLabel = label || (n.reminder ? reminderLabel : null);
-    const isDel = currentTab==='deleted';
-    const badge = n.reminder
+    const hasLabel = n.labelColor && n.labelColor !== '#ffffff';
+    const cardBg   = n.reminder ? '#fffde7' : '#ffffff'; // жовтий для нагадувань
+    const isDel    = currentTab==='deleted';
+    const badge    = n.reminder
       ? `<span class="note-reminder-badge">🔔 ${fmtDT(n.reminder)}</span>`
       : `<span class="note-date">🕐 ${fmtDT(n.created)}</span>`;
-    const actions = isDel
+    const actions  = isDel
       ? `<button class="note-action-btn restore" data-action="restore" data-id="${n.id}">↩ Відновити</button>
          <button class="note-action-btn danger" data-action="permdelete" data-id="${n.id}">✕ Видалити назавжди</button>`
       : `<button class="note-action-btn" data-action="edit" data-id="${n.id}">✏ Редагувати</button>
          <button class="note-action-btn success" data-action="complete" data-id="${n.id}">✓ Виконано</button>`;
-    const labelBar = activeLabel
-      ? `<div class="note-label-bar" style="background:${activeLabel}"></div>`
+    const labelBar = hasLabel
+      ? `<div class="note-label-bar" style="background:${n.labelColor}"></div>`
       : '';
-    return `<div class="note-card" style="background:#ffffff">
+    return `<div class="note-card" style="background:${cardBg}">
       ${labelBar}
       <div class="note-body">
         <div class="note-text">${esc(n.text)}</div>
