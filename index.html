@@ -666,7 +666,7 @@ let notes        = [];
 let deletedNotes = [];
 let currentTab   = 'notes';
 let editingId    = null;
-let selColor     = '#ffffff'; // label color
+let selColor     = '#43a047'; // default green label
 let recognition  = null;
 let isRecording  = false;
 
@@ -782,7 +782,7 @@ function openCreateModal() {
   document.getElementById('modalTitle').textContent='Нова нотатка';
   document.getElementById('noteText').value='';
   document.getElementById('reminderInput').value='';
-  selColor='#ffffff'; buildSwatches();
+  selColor='#43a047'; buildSwatches();
   document.getElementById('noteModal').classList.add('open');
   setTimeout(()=>document.getElementById('noteText').focus(),200);
 }
@@ -806,7 +806,7 @@ function saveNote() {
   if(!text){toast('Введіть текст нотатки');return;}
   const raw=document.getElementById('reminderInput').value;
   const reminder=raw?new Date(raw).toISOString():null;
-  const labelColor=(reminder&&selColor==='#ffffff')?REMINDER_LABEL:selColor;
+  const labelColor = selColor; // user always picks label; reminder gets red label only if default green kept
   if(editingId){
     const i=notes.findIndex(n=>n.id===editingId);
     if(i!==-1){notes[i]={...notes[i],text,labelColor,reminder};fbSaveNote(notes[i]);}
