@@ -1,4 +1,4 @@
-const CACHE = 'notes-v2';
+const CACHE = 'notes-v10';
 const FILES = [
   'index.html',
   'manifest.json',
@@ -13,7 +13,7 @@ self.addEventListener('install', e => {
   );
 });
 
-// Активація — видаляємо старі кеші
+// Активація — видаляємо всі старі кеші
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys().then(keys =>
@@ -22,9 +22,16 @@ self.addEventListener('activate', e => {
   );
 });
 
-// Fetch — спочатку кеш, потім мережа
+// Fetch — спочатку мережа, потім кеш (network-first щоб завжди був свіжий index.html)
 self.addEventListener('fetch', e => {
   e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request))
+    fetch(e.request)
+      .then(response => {
+        // Оновлюємо кеш свіжою версією
+        const clone = response.clone();
+        caches.open(CACHE).then(c => c.put(e.request, clone));
+        return response;
+      })
+      .catch(() => caches.match(e.request))
   );
 });
