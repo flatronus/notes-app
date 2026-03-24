@@ -220,7 +220,7 @@
 
   .note-footer .note-date,
   .note-footer .note-reminder-badge {
-    flex: 1;
+    flex: 0 0 auto;
     min-width: 0;
   }
 
@@ -756,8 +756,9 @@ function renderNotes() {
     const dateIso  = n.reminder || n.created;
     const dayKey   = dateKey(dateIso);
 
+    const sepDate = new Date(dateIso);
     const separator = (prevDayKey !== null && prevDayKey !== dayKey)
-      ? `<div class="day-separator"><span>${new Date(dateIso).toLocaleString('uk-UA',{day:'2-digit',month:'long',year:'numeric'})}</span></div>`
+      ? `<div class="day-separator"><span>${sepDate.toLocaleString('uk-UA',{weekday:'long',day:'2-digit',month:'long',year:'numeric'})}</span></div>`
       : '';
     prevDayKey = dayKey;
 
