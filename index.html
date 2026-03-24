@@ -210,30 +210,56 @@
     padding: 2px 7px;
   }
 
-  .note-actions {
+  .note-footer {
     display: flex;
+    align-items: center;
     gap: 6px;
-    margin-top: 10px;
+    margin-top: 8px;
     flex-wrap: wrap;
+  }
+
+  .note-footer .note-date,
+  .note-footer .note-reminder-badge {
+    flex: 1;
+    min-width: 0;
   }
 
   .note-action-btn {
     border: none;
     background: rgba(0,0,0,0.06);
     border-radius: 7px;
-    padding: 7px 12px;
-    font-family: var(--font);
-    font-size: 12px;
-    font-weight: 500;
+    padding: 6px 8px;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 4px;
+    justify-content: center;
     color: var(--ink);
+    flex-shrink: 0;
   }
-  .note-action-btn.danger  { color: var(--accent); }
-  .note-action-btn.success { color: #27ae60; }
-  .note-action-btn.restore { background: rgba(39,174,96,0.12); color: #27ae60; }
+  .note-action-btn.danger  { color: var(--accent); background: rgba(192,57,43,0.07); }
+  .note-action-btn.success { color: #27ae60; background: rgba(39,174,96,0.07); }
+  .note-action-btn.restore { color: #27ae60; background: rgba(39,174,96,0.07); }
+
+  .day-separator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 14px 2px 8px;
+  }
+  .day-separator::before,
+  .day-separator::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .day-separator span {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink-muted);
+    white-space: nowrap;
+    text-transform: capitalize;
+  }
 
   /* EMPTY STATE */
   .empty-state {
@@ -678,8 +704,16 @@ function isLight(hex) {
 }
 function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function fmtDT(iso) {
-  if(!iso)return'';
-  return new Date(iso).toLocaleString('uk-UA',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  if(!iso) return '';
+  const d = new Date(iso);
+  const weekday = d.toLocaleString('uk-UA', {weekday:'short'});
+  const dt      = d.toLocaleString('uk-UA', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  return weekday + ', ' + dt;
+}
+function dateKey(iso) {
+  if(!iso) return '';
+  const d = new Date(iso);
+  return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
 }
 function toast(msg) {
   const t=document.getElementById('toast');
@@ -713,31 +747,42 @@ function renderNotes() {
       <p>${q?'Нічого не знайдено':msgs[currentTab]}</p></div>`;
     return;
   }
-  content.innerHTML=list.map(n=>{
-    // Default label is green for notes without labelColor (old notes) or newly created
+  let prevDayKey = null;
+  const items = list.map(n => {
     const effectiveLabel = n.labelColor !== undefined ? n.labelColor : '#43a047';
     const hasLabel = effectiveLabel && effectiveLabel !== '#ffffff';
-    const cardBg   = n.reminder ? '#fffde7' : '#ffffff'; // жовтий для нагадувань
-    const isDel    = currentTab==='deleted';
-    const badge    = n.reminder
+    const cardBg   = n.reminder ? '#fffde7' : '#ffffff';
+    const isDel    = currentTab === 'deleted';
+    const dateIso  = n.reminder || n.created;
+    const dayKey   = dateKey(dateIso);
+
+    const separator = (prevDayKey !== null && prevDayKey !== dayKey)
+      ? `<div class="day-separator"><span>${new Date(dateIso).toLocaleString('uk-UA',{day:'2-digit',month:'long',year:'numeric'})}</span></div>`
+      : '';
+    prevDayKey = dayKey;
+
+    const dateStr = n.reminder
       ? `<span class="note-reminder-badge">🔔 ${fmtDT(n.reminder)}</span>`
       : `<span class="note-date">🕐 ${fmtDT(n.created)}</span>`;
-    const actions  = isDel
-      ? `<button class="note-action-btn restore" data-action="restore" data-id="${n.id}">↩ Відновити</button>
-         <button class="note-action-btn danger" data-action="permdelete" data-id="${n.id}">✕ Видалити назавжди</button>`
-      : `<button class="note-action-btn" data-action="edit" data-id="${n.id}">✏ Редагувати</button>
-         <button class="note-action-btn success" data-action="complete" data-id="${n.id}">✓ Виконано</button>`;
+
+    const actions = isDel
+      ? `<button class="note-action-btn restore" data-action="restore" data-id="${n.id}" title="Відновити"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-5.28"/></svg></button>
+         <button class="note-action-btn danger" data-action="permdelete" data-id="${n.id}" title="Видалити назавжди"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>`
+      : `<button class="note-action-btn" data-action="edit" data-id="${n.id}" title="Редагувати"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+         <button class="note-action-btn success" data-action="complete" data-id="${n.id}" title="Виконано"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><polyline points="20 6 9 17 4 12"/></svg></button>`;
+
     const labelBar = hasLabel
       ? `<div class="note-label-bar" style="background:${effectiveLabel}"></div>`
       : '';
-    return `<div class="note-card" style="background:${cardBg}">
+
+    return separator + `<div class="note-card" style="background:${cardBg}">
       ${labelBar}
       <div class="note-body">
         <div class="note-text">${esc(n.text)}</div>
-        <div class="note-meta">${badge}</div>
-        <div class="note-actions">${actions}</div>
+        <div class="note-footer">${dateStr}${actions}</div>
       </div></div>`;
-  }).join('');
+  });
+  content.innerHTML = items.join('');;
 }
 
 // ── TABS ──
