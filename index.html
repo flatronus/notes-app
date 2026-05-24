@@ -565,8 +565,8 @@
     Нотатки
   </button>
 
-  <!-- Delete selected — visible only when notes are selected -->
-  <button class="tab-btn tab-delete" id="tabDeleteSel" style="display:none;" title="Видалити вибране">
+  <!-- Delete selected -->
+  <button class="tab-btn tab-delete" id="tabDeleteSel" title="Видалити вибране">
     <div class="tab-del-inner">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="22" height="22">
         <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -720,14 +720,11 @@ const fbDelDeleted  = id => userId && deleteDoc(doc(deletedCol(), id));
 let selectedIds = new Set();
 
 function updateDeleteBar() {
-  const btn = document.getElementById('tabDeleteSel');
   const badge = document.getElementById('selCountBadge');
   if(selectedIds.size > 0) {
-    btn.style.display = 'flex';
     badge.style.display = 'block';
     badge.textContent = selectedIds.size;
   } else {
-    btn.style.display = 'none';
     badge.style.display = 'none';
   }
 }
