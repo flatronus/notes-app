@@ -236,7 +236,73 @@
     line-height: 14px;
   }
 
-  /* EMPTY STATE */
+  /* EMOJI PICKER */
+  .emoji-btn {
+    background: none;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 6px 10px;
+    font-size: 18px;
+    cursor: pointer;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .emoji-picker {
+    display: none;
+    flex-direction: column;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    overflow: hidden;
+    width: 100%;
+    max-width: 600px;
+    margin-top: 6px;
+    position: relative;
+    z-index: 10;
+  }
+  .emoji-picker.open { display: flex; }
+  .emoji-cats {
+    display: flex;
+    overflow-x: auto;
+    padding: 6px 8px;
+    gap: 4px;
+    border-bottom: 1px solid var(--border);
+    scrollbar-width: none;
+  }
+  .emoji-cats::-webkit-scrollbar { display: none; }
+  .emoji-cat-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 6px;
+    flex-shrink: 0;
+    opacity: 0.6;
+    transition: opacity .15s, background .15s;
+  }
+  .emoji-cat-btn.active { opacity: 1; background: var(--bg); }
+  .emoji-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
+    gap: 2px;
+    padding: 8px;
+    max-height: 180px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .emoji-item {
+    font-size: 22px;
+    text-align: center;
+    cursor: pointer;
+    padding: 4px 2px;
+    border-radius: 6px;
+    line-height: 1.2;
+    transition: background .1s;
+    user-select: none;
+  }
+  .emoji-item:hover, .emoji-item:active { background: var(--bg); }
   .empty-state {
     display: flex;
     flex-direction: column;
@@ -592,6 +658,16 @@
     <div class="modal-handle"></div>
     <div class="modal-title" id="modalTitle">Нова нотатка</div>
 
+    <!-- Emoji button row -->
+    <div class="form-row" style="margin-top:0;margin-bottom:8px;">
+      <button class="emoji-btn" id="emojiToggleBtn" title="Смайлики">😊</button>
+    </div>
+    <!-- Emoji picker panel -->
+    <div class="emoji-picker" id="emojiPicker">
+      <div class="emoji-cats" id="emojiCats"></div>
+      <div class="emoji-grid" id="emojiGrid"></div>
+    </div>
+
     <textarea class="note-textarea" id="noteText" placeholder="Введіть текст нотатки…"></textarea>
 
     <!-- Voice -->
@@ -896,7 +972,11 @@ function openEdit(id) {
   document.getElementById('noteModal').classList.add('open');
   setTimeout(()=>document.getElementById('noteText').focus(),200);
 }
-function closeModal() { document.getElementById('noteModal').classList.remove('open'); stopVoice(); }
+function closeModal() {
+  document.getElementById('noteModal').classList.remove('open');
+  document.getElementById('emojiPicker').classList.remove('open');
+  stopVoice();
+}
 
 function saveNote() {
   const text=document.getElementById('noteText').value.trim();
@@ -1106,6 +1186,72 @@ document.addEventListener('click', e=>{
 document.getElementById('tabDeleteSel').addEventListener('click', deleteSelected);
 
 document.getElementById('searchInput').addEventListener('input',renderNotes);
+
+// ── EMOJI PICKER ──
+const EMOJI_CATS = [
+  { icon: '😊', label: 'Смайли', emojis: ['😀','😃','😄','😁','😆','😅','🤣','😂','🙂','🙃','😉','😊','😇','🥰','😍','🤩','😘','😗','😚','😙','🥲','😋','😛','😜','🤪','😝','🤑','🤗','🤭','🤫','🤔','🤐','🤨','😐','😑','😶','😏','😒','🙄','😬','🤥','😌','😔','😪','🤤','😴','😷','🤒','🤕','🤢','🤮','🤧','🥵','🥶','🥴','😵','🤯','🤠','🥳','🥸','😎','🤓','🧐','😕','😟','🙁','☹️','😮','😯','😲','😳','🥺','😦','😧','😨','😰','😥','😢','😭','😱','😖','😣','😞','😓','😩','😫','🥱','😤','😡','😠','🤬','😈','👿','💀','☠️','💩','🤡','👹','👺','👻','👽','👾','🤖'] },
+  { icon: '👍', label: 'Жести', emojis: ['👋','🤚','🖐','✋','🖖','👌','🤌','🤏','✌️','🤞','🤟','🤘','🤙','👈','👉','👆','🖕','👇','☝️','👍','👎','✊','👊','🤛','🤜','👏','🙌','🫶','👐','🤲','🤝','🙏','✍️','💅','🤳','💪','🦾','🦿','🦵','🦶','👂','🦻','👃','🫀','🫁','🧠','🦷','🦴','👀','👁','👅','👄','🫦','💋'] },
+  { icon: '❤️', label: 'Серця', emojis: ['❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔','❤️‍🔥','❤️‍🩹','❣️','💕','💞','💓','💗','💖','💘','💝','💟','☮️','✝️','☪️','🕉','✡️','🔯','🛐','⛎','♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓','🆔','⚛️','🉑','☢️','☣️','📴','📳','🈶','🈚','🈸','🈺','🈷️','✴️','🆚','💮','🉐','㊙️','㊗️','🈴','🈵','🈹','🈲','🅰️','🅱️','🆎','🆑','🅾️','🆘','❌','⭕','🛑','⛔','📛','🚫'] },
+  { icon: '🐶', label: 'Тварини', emojis: ['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐻‍❄️','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🙈','🙉','🙊','🐒','🦆','🦅','🦉','🦇','🐝','🪱','🐛','🦋','🐌','🐞','🐜','🪲','🦟','🦗','🪳','🕷','🦂','🐢','🐍','🦎','🦖','🦕','🐙','🦑','🦐','🦞','🦀','🐡','🐠','🐟','🐬','🐳','🐋','🦈','🐊','🐅','🐆','🦓','🦍','🦧','🦣','🐘','🦛','🦏','🐪','🐫','🦒','🦘','🦬','🐃','🐂','🐄','🐎','🐖','🐏','🐑','🦙','🐐','🦌','🐕','🐩','🦮','🐈','🐓','🦃','🦤','🦚','🦜','🦢','🦩','🕊','🐇','🦝','🦨','🦡','🦫','🦦','🦥','🐁','🐀','🐿','🦔'] },
+  { icon: '🍕', label: 'Їжа', emojis: ['🍏','🍎','🍐','🍊','🍋','🍌','🍉','🍇','🍓','🫐','🍈','🍒','🍑','🥭','🍍','🥥','🥝','🍅','🍆','🥑','🥦','🥬','🥒','🌶','🫑','🧄','🧅','🥔','🍠','🫘','🥐','🥯','🍞','🥖','🥨','🧀','🥚','🍳','🧈','🥞','🧇','🥓','🥩','🍗','🍖','🦴','🌭','🍔','🍟','🍕','🫓','🥪','🥙','🧆','🌮','🌯','🫔','🥗','🥘','🫕','🥫','🍝','🍜','🍲','🍛','🍣','🍱','🥟','🦪','🍤','🍙','🍚','🍘','🍥','🥮','🍢','🧁','🍰','🎂','🍮','🍭','🍬','🍫','🍿','🍩','🍪','🌰','🥜','🍯','🧃','🥤','🧋','🍵','☕','🍺','🍻','🥂','🍷','🥃','🍸','🍹','🧉','🍾'] },
+  { icon: '⚽', label: 'Спорт', emojis: ['⚽','🏀','🏈','⚾','🥎','🎾','🏐','🏉','🥏','🎱','🪀','🏓','🏸','🏒','🏑','🥍','🏏','🪃','🥅','⛳','🪁','🎣','🤿','🎽','🎿','🛷','🥌','🎯','🪃','🎱','🔫','🎮','🕹','🎲','♟','🎭','🎨','🖼','🎰','🚗','🚕','🚙','🚌','🚎','🏎','🚓','🚑','🚒','🚐','🛻','🚚','🚛','🚜','🏍','🛵','🛺','🚲','🛴','🛹','🛼','🚏','🛣','🛤'] },
+  { icon: '🌍', label: 'Природа', emojis: ['🌸','🌺','🌻','🌹','🥀','🌷','🌱','🌲','🌳','🌴','🌵','🎋','🎍','☘️','🍀','🍁','🍂','🍃','🍄','🪨','🌾','💐','🌞','🌝','🌛','🌜','🌚','🌕','🌖','🌗','🌘','🌑','🌒','🌓','🌔','🌙','🌟','⭐','🌠','☀️','🌤','⛅','🌥','☁️','🌦','🌧','⛈','🌩','🌨','❄️','☃️','⛄','🌬','💨','🌪','🌫','🌈','☂️','🌊','🌀','🌁'] },
+  { icon: '✈️', label: 'Подорожі', emojis: ['🚀','🛸','🛩','✈️','🚁','🛶','⛵','🚤','🛥','🛳','⛴','🚢','🚂','🚃','🚄','🚅','🚆','🚇','🚈','🚉','🚊','🚝','🚞','🚋','🚌','🚍','🚎','🚐','🚑','🚒','🚓','🚔','🚕','🚖','🚗','🚘','🚙','🛻','🚚','🚛','🚜','⛽','🛞','🚨','🚥','🚦','🛑','🚧','🗺','🧭','🏔','⛰','🌋','🗻','🏕','🏖','🏜','🏝','🏞','🏟','🏛','🏗','🧱','🏘','🏚','🏠','🏡','🏢','🏣','🏤','🏥','🏦','🏨','🏩','🏪','🏫','🏬','🏭','🏯','🏰','💒','🗼','🗽','⛪','🕌','🛕','🕍','⛩','🕋','⛲','⛺','🌁','🌃','🏙','🌄','🌅','🌆','🌇','🌉','🌌','🎠','🎡','🎢','💈','🎪'] },
+  { icon: '💡', label: 'Символи', emojis: ['💯','🔢','🔣','🔤','🔡','🔠','🆖','🆗','🆙','🆒','🆕','🆓','0️⃣','1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣','🔟','🔔','🔕','🎵','🎶','⚠️','🔱','📛','🚩','🎌','🏴','🏳️','✅','❎','🔴','🟠','🟡','🟢','🔵','🟣','⚫','⚪','🟤','🔺','🔻','🔷','🔶','🔹','🔸','▪️','▫️','◾','◽','◼️','◻️','🟥','🟧','🟨','🟩','🟦','🟪','⬛','⬜','🟫','🔲','🔳','💠','🔘','🔳','🔲','💤','🔆','🔅','📶','📳','📴','💱','💲','♻️','✔️','❓','❗','‼️','⁉️','🔃','🔄','🔙','🔚','🔛','🔜','🔝'] },
+];
+
+let currentEmojiCat = 0;
+
+function buildEmojiPicker() {
+  const catsEl = document.getElementById('emojiCats');
+  catsEl.innerHTML = EMOJI_CATS.map((c,i) =>
+    `<button class="emoji-cat-btn${i===0?' active':''}" data-catidx="${i}" title="${c.label}">${c.icon}</button>`
+  ).join('');
+  catsEl.querySelectorAll('.emoji-cat-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      currentEmojiCat = +btn.dataset.catidx;
+      catsEl.querySelectorAll('.emoji-cat-btn').forEach(b => b.classList.toggle('active', +b.dataset.catidx === currentEmojiCat));
+      renderEmojiGrid();
+    });
+    btn.addEventListener('touchend', e => { e.preventDefault(); btn.click(); });
+  });
+  renderEmojiGrid();
+}
+
+function renderEmojiGrid() {
+  const grid = document.getElementById('emojiGrid');
+  grid.innerHTML = EMOJI_CATS[currentEmojiCat].emojis.map(em =>
+    `<div class="emoji-item" data-em="${em}">${em}</div>`
+  ).join('');
+  grid.querySelectorAll('.emoji-item').forEach(el => {
+    const insertEmoji = e => {
+      e.preventDefault(); e.stopPropagation();
+      const ta = document.getElementById('noteText');
+      const start = ta.selectionStart, end = ta.selectionEnd;
+      const val = ta.value;
+      ta.value = val.slice(0, start) + el.dataset.em + val.slice(end);
+      const pos = start + el.dataset.em.length;
+      ta.setSelectionRange(pos, pos);
+      ta.focus();
+    };
+    el.addEventListener('click', insertEmoji);
+    el.addEventListener('touchend', insertEmoji);
+  });
+}
+
+function toggleEmojiPicker() {
+  const picker = document.getElementById('emojiPicker');
+  const isOpen = picker.classList.toggle('open');
+  if(isOpen) buildEmojiPicker();
+}
+
+document.getElementById('emojiToggleBtn').addEventListener('click', e => {
+  e.stopPropagation();
+  toggleEmojiPicker();
+});
+
+
 
 // ── PWA SERVICE WORKER ──
 if('serviceWorker'in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
