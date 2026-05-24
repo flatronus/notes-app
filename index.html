@@ -730,11 +730,14 @@ function updateDeleteBar() {
 }
 
 function toggleSelect(id) {
-  if(selectedIds.has(id)) selectedIds.delete(id);
-  else selectedIds.add(id);
-  // update visual
-  document.querySelectorAll(`.note-card[data-id="${id}"]`).forEach(el => {
-    el.classList.toggle('selected', selectedIds.has(id));
+  if(selectedIds.has(id)) {
+    selectedIds.clear();
+  } else {
+    selectedIds.clear();
+    selectedIds.add(id);
+  }
+  document.querySelectorAll('.note-card').forEach(el => {
+    el.classList.toggle('selected', selectedIds.has(el.dataset.id));
   });
   updateDeleteBar();
 }
@@ -795,11 +798,6 @@ function renderNotes() {
       </div></div>`;
   });
   content.innerHTML = items.join('');
-
-  // Scroll to bottom so newest notes are visible
-  if(!document.getElementById('searchInput').value) {
-    requestAnimationFrame(() => { content.scrollTop = content.scrollHeight; });
-  }
 
   // Attach single/double click for note cards (active notes)
   content.querySelectorAll('.note-card').forEach(card => {
