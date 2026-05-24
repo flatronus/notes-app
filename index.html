@@ -13,9 +13,6 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Нотатки">
 <link rel="apple-touch-icon" href="icon-192.png">
-<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
-<link rel="shortcut icon" href="icon-192.png">
 <style>
   /* ── System font stack — no Google Fonts needed ── */
   :root {
@@ -159,21 +156,20 @@
     margin-bottom: 10px;
     box-shadow: var(--shadow);
     word-break: break-word;
-    display: flex;
-    overflow: hidden;
     background: #ffffff;
+    cursor: pointer;
+    transition: box-shadow .15s, outline .1s;
+    outline: 2.5px solid transparent;
+    user-select: none;
+    -webkit-user-select: none;
   }
-
-  .note-label-bar {
-    width: 12px;
-    flex-shrink: 0;
-    border-radius: 0;
+  .note-card.selected {
+    outline: 2.5px solid var(--accent);
+    box-shadow: 0 2px 16px rgba(192,57,43,0.18), 0 1px 3px rgba(0,0,0,0.07);
   }
 
   .note-body {
-    flex: 1;
     padding: 14px 15px;
-    min-width: 0;
   }
 
   .note-text {
@@ -185,48 +181,7 @@
     color: #1a1814;
   }
 
-  .note-meta {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 10px;
-    flex-wrap: wrap;
-  }
-
-  .note-date {
-    font-size: 11px;
-    color: var(--ink-muted);
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-
-  .note-reminder-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--accent);
-    background: rgba(192,57,43,0.08);
-    border-radius: 6px;
-    padding: 2px 7px;
-  }
-
-  .note-footer {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-top: 8px;
-    flex-wrap: wrap;
-  }
-
-  .note-footer .note-date,
-  .note-footer .note-reminder-badge {
-    flex: 0 0 auto;
-    min-width: 0;
-  }
-
+  /* deleted tab actions */
   .note-action-btn {
     border: none;
     background: rgba(0,0,0,0.06);
@@ -240,28 +195,40 @@
     flex-shrink: 0;
   }
   .note-action-btn.danger  { color: var(--accent); background: rgba(192,57,43,0.07); }
-  .note-action-btn.success { color: #27ae60; background: rgba(39,174,96,0.07); }
   .note-action-btn.restore { color: #27ae60; background: rgba(39,174,96,0.07); }
 
-  .day-separator {
+  .note-del-footer {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin: 14px 2px 8px;
+    gap: 6px;
+    margin-top: 8px;
+    flex-wrap: wrap;
   }
-  .day-separator::before,
-  .day-separator::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
+
+  /* DELETE BAR in topbar */
+  .delete-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
-  .day-separator span {
-    font-size: 11px;
-    font-weight: 600;
+  .delete-bar span {
+    font-size: 13px;
     color: var(--ink-muted);
-    white-space: nowrap;
-    text-transform: capitalize;
+  }
+  .btn-delete-sel {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 34px;
+    padding: 0 14px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
   }
 
   /* EMPTY STATE */
@@ -557,6 +524,13 @@
 <!-- TOP BAR -->
 <div class="topbar">
   <div class="topbar-title" id="topbarTitle">Нотатки</div>
+  <div class="delete-bar" id="deleteBar" style="display:none;">
+    <span id="selCountLabel"></span>
+    <button class="btn-delete-sel" id="deleteSelBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+      Видалити
+    </button>
+  </div>
   <span id="userEmail" style="font-size:11px;color:var(--ink-muted);max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
   <button data-action="signout" style="border:none;background:none;cursor:pointer;color:var(--ink-muted);font-size:11px;font-family:var(--font);padding:4px 6px;border-radius:6px;border:1px solid var(--border);">Вийти</button>
   <div class="search-wrap">
@@ -591,14 +565,6 @@
       <line x1="7" y1="16" x2="13" y2="16"/>
     </svg>
     Нотатки
-  </button>
-
-  <button class="tab-btn" id="tabReminders" data-action="tab" data-tab="reminders">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-      <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-    </svg>
-    Нагадування
   </button>
 
   <button class="tab-btn" id="tabDeleted" data-action="tab" data-tab="deleted">
@@ -742,71 +708,132 @@ const fbDeleteNote  = id => userId && deleteDoc(doc(notesCol(),   id));
 const fbSaveDeleted = n  => userId && setDoc(doc(deletedCol(), n.id), n);
 const fbDelDeleted  = id => userId && deleteDoc(doc(deletedCol(), id));
 
+// ── SELECTION ──
+let selectedIds = new Set();
+
+function updateDeleteBar() {
+  const bar = document.getElementById('deleteBar');
+  const title = document.getElementById('topbarTitle');
+  const label = document.getElementById('selCountLabel');
+  if(selectedIds.size > 0) {
+    bar.style.display = 'flex';
+    title.style.display = 'none';
+    label.textContent = `Вибрано: ${selectedIds.size}`;
+  } else {
+    bar.style.display = 'none';
+    title.style.display = '';
+  }
+}
+
+function toggleSelect(id) {
+  if(selectedIds.has(id)) selectedIds.delete(id);
+  else selectedIds.add(id);
+  // update visual
+  document.querySelectorAll(`.note-card[data-id="${id}"]`).forEach(el => {
+    el.classList.toggle('selected', selectedIds.has(id));
+  });
+  updateDeleteBar();
+}
+
+function clearSelection() {
+  selectedIds.clear();
+  document.querySelectorAll('.note-card.selected').forEach(el => el.classList.remove('selected'));
+  updateDeleteBar();
+}
+
+function deleteSelected() {
+  if(!selectedIds.size) return;
+  selectedIds.forEach(id => {
+    const i = notes.findIndex(n => n.id === id);
+    if(i === -1) return;
+    const del = {...notes[i], deletedAt: new Date().toISOString()};
+    deletedNotes.push(del); fbSaveDeleted(del); fbDeleteNote(notes[i].id);
+    notes.splice(i, 1);
+  });
+  clearSelection();
+  renderNotes();
+  toast('Переміщено до видалених');
+}
+
 // ── RENDER ──
 function renderNotes() {
   const content = document.getElementById('mainContent');
   const q = document.getElementById('searchInput').value.toLowerCase().trim();
-  let list = currentTab==='deleted' ? deletedNotes
-           : currentTab==='reminders' ? notes.filter(n=>!!n.reminder)
-           : notes;
-  if(q) list=list.filter(n=>n.text.toLowerCase().includes(q)||
-    (n.reminder?fmtDT(n.reminder):fmtDT(n.created)).toLowerCase().includes(q));
+  let list = currentTab==='deleted' ? deletedNotes : notes;
+  if(q) list=list.filter(n=>n.text.toLowerCase().includes(q));
   if(!list.length){
-    const msgs={notes:'Натисніть + щоб створити нотатку',reminders:'Нагадувань ще немає',deleted:'Видалені нотатки порожні'};
+    const msgs={notes:'Натисніть + щоб створити нотатку',deleted:'Видалені нотатки порожні'};
     content.innerHTML=`<div class="empty-state">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48">
         <rect x="3" y="3" width="18" height="18" rx="3"/>
         <line x1="7" y1="8" x2="17" y2="8"/>
         <line x1="7" y1="12" x2="17" y2="12"/>
       </svg>
-      <p>${q?'Нічого не знайдено':msgs[currentTab]}</p></div>`;
+      <p>${q?'Нічого не знайдено':msgs[currentTab]||'Порожньо'}</p></div>`;
     return;
   }
-  let prevDayKey = null;
+  const isDel = currentTab === 'deleted';
   const items = list.map(n => {
-    const effectiveLabel = n.labelColor !== undefined ? n.labelColor : '#43a047';
-    const hasLabel = effectiveLabel && effectiveLabel !== '#ffffff';
-    const cardBg   = n.reminder ? '#fffde7' : '#ffffff';
-    const isDel    = currentTab === 'deleted';
-    const dateIso  = n.reminder || n.created;
-    const dayKey   = dateKey(dateIso);
-
-    const sepDate = new Date(dateIso);
-    const separator = (prevDayKey !== null && prevDayKey !== dayKey)
-      ? `<div class="day-separator"><span>${sepDate.toLocaleString('uk-UA',{weekday:'long',day:'2-digit',month:'long',year:'numeric'})}</span></div>`
-      : '';
-    prevDayKey = dayKey;
-
-    const dateStr = n.reminder
-      ? `<span class="note-reminder-badge">🔔 ${fmtDT(n.reminder)}</span>`
-      : `<span class="note-date">🕐 ${fmtDT(n.created)}</span>`;
-
-    const actions = isDel
-      ? `<button class="note-action-btn restore" data-action="restore" data-id="${n.id}" title="Відновити"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-5.28"/></svg></button>
-         <button class="note-action-btn danger" data-action="permdelete" data-id="${n.id}" title="Видалити назавжди"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>`
-      : `<button class="note-action-btn" data-action="edit" data-id="${n.id}" title="Редагувати"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-         <button class="note-action-btn success" data-action="complete" data-id="${n.id}" title="Виконано"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><polyline points="20 6 9 17 4 12"/></svg></button>`;
-
-    const labelBar = hasLabel
-      ? `<div class="note-label-bar" style="background:${effectiveLabel}"></div>`
-      : '';
-
-    return separator + `<div class="note-card" style="background:${cardBg}">
-      ${labelBar}
+    const isSel = selectedIds.has(n.id);
+    if(isDel) {
+      return `<div class="note-card${isSel?' selected':''}" data-id="${n.id}">
+        <div class="note-body">
+          <div class="note-text">${esc(n.text)}</div>
+          <div class="note-del-footer">
+            <button class="note-action-btn restore" data-action="restore" data-id="${n.id}" title="Відновити"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-5.28"/></svg> Відновити</button>
+            <button class="note-action-btn danger" data-action="permdelete" data-id="${n.id}" title="Видалити назавжди"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
+          </div>
+        </div></div>`;
+    }
+    return `<div class="note-card${isSel?' selected':''}" data-id="${n.id}">
       <div class="note-body">
         <div class="note-text">${esc(n.text)}</div>
-        <div class="note-footer">${dateStr}${actions}</div>
       </div></div>`;
   });
-  content.innerHTML = items.join('');;
+  content.innerHTML = items.join('');
+
+  // Attach single/double click for note cards (active notes)
+  content.querySelectorAll('.note-card').forEach(card => {
+    const id = card.dataset.id;
+    let clickTimer = null;
+
+    card.addEventListener('click', e => {
+      if(e.target.closest('[data-action]')) return; // let buttons handle themselves
+      clearTimeout(clickTimer);
+      clickTimer = setTimeout(() => {
+        // single click = select/deselect
+        if(currentTab !== 'deleted') toggleSelect(id);
+      }, 220);
+    });
+
+    card.addEventListener('dblclick', e => {
+      if(e.target.closest('[data-action]')) return;
+      clearTimeout(clickTimer);
+      if(currentTab !== 'deleted') openEdit(id);
+    });
+
+    // Mobile double-tap
+    let lastTap = 0;
+    card.addEventListener('touchend', e => {
+      if(e.target.closest('[data-action]')) return;
+      const now = Date.now();
+      if(now - lastTap < 350) {
+        e.preventDefault();
+        clearTimeout(clickTimer);
+        if(currentTab !== 'deleted') openEdit(id);
+      }
+      lastTap = now;
+    });
+  });
 }
 
 // ── TABS ──
 function switchTab(tab) {
   currentTab=tab;
-  ['Notes','Reminders','Deleted'].forEach(t=>document.getElementById('tab'+t)?.classList.remove('active'));
+  clearSelection();
+  ['Notes','Deleted'].forEach(t=>document.getElementById('tab'+t)?.classList.remove('active'));
   document.getElementById('tab'+tab.charAt(0).toUpperCase()+tab.slice(1))?.classList.add('active');
-  document.getElementById('topbarTitle').textContent={notes:'Нотатки',reminders:'Нагадування',deleted:'Видалені'}[tab];
+  document.getElementById('topbarTitle').textContent={notes:'Нотатки',deleted:'Видалені'}[tab]||tab;
   renderNotes();
 }
 
@@ -869,13 +896,13 @@ function saveNote() {
   if(!text){toast('Введіть текст нотатки');return;}
   const raw=document.getElementById('reminderInput').value;
   const reminder=raw?new Date(raw).toISOString():null;
-  const labelColor = selColor; // user always picks label; reminder gets red label only if default green kept
+  const labelColor = selColor;
   if(editingId){
     const i=notes.findIndex(n=>n.id===editingId);
     if(i!==-1){notes[i]={...notes[i],text,labelColor,reminder};fbSaveNote(notes[i]);}
   } else {
     const note={id:uid(),text,labelColor,reminder,created:new Date().toISOString()};
-    notes.unshift(note); fbSaveNote(note);
+    notes.push(note); fbSaveNote(note);
   }
   closeModal(); renderNotes();
   if(reminder) scheduleNotif(notes.find(n=>n.text===text&&n.reminder===reminder));
@@ -885,7 +912,7 @@ function saveNote() {
 function completeNote(id) {
   const i=notes.findIndex(n=>n.id===id); if(i===-1)return;
   const del={...notes[i],deletedAt:new Date().toISOString()};
-  deletedNotes.unshift(del); fbSaveDeleted(del); fbDeleteNote(notes[i].id);
+  deletedNotes.push(del); fbSaveDeleted(del); fbDeleteNote(notes[i].id);
   notes.splice(i,1); renderNotes(); toast('Переміщено до видалених');
 }
 function restoreNote(id) {
@@ -970,10 +997,10 @@ function checkReminders() {
 // ── FIRESTORE SYNC ──
 function startSync() {
   if(unsubN) unsubN(); if(unsubD) unsubD();
-  unsubN=onSnapshot(query(notesCol(),orderBy('created','desc')),snap=>{
+  unsubN=onSnapshot(query(notesCol(),orderBy('created','asc')),snap=>{
     notes=snap.docs.map(d=>d.data()); renderNotes();
   });
-  unsubD=onSnapshot(query(deletedCol(),orderBy('deletedAt','desc')),snap=>{
+  unsubD=onSnapshot(query(deletedCol(),orderBy('deletedAt','asc')),snap=>{
     deletedNotes=snap.docs.map(d=>d.data());
     if(currentTab==='deleted') renderNotes();
   });
@@ -1043,7 +1070,7 @@ document.addEventListener('click', e=>{
     if(action==='complete')   completeNote(id);
     if(action==='restore')    restoreNote(id);
     if(action==='permdelete') permDelete(id);
-    if(action==='tab')        switchTab(tab);
+    if(action==='tab')        { clearSelection(); switchTab(tab); }
     if(action==='new')        openCreateModal();
     if(action==='save')       saveNote();
     if(action==='close')      closeModal();
@@ -1063,8 +1090,13 @@ document.addEventListener('click', e=>{
     }
     return;
   }
+  // Click outside notes = clear selection
+  if(!e.target.closest('.note-card')) clearSelection();
   if(e.target===document.getElementById('noteModal')) closeModal();
 });
+
+// Delete selected button
+document.getElementById('deleteSelBtn').addEventListener('click', deleteSelected);
 
 document.getElementById('searchInput').addEventListener('input',renderNotes);
 
