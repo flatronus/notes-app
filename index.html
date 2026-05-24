@@ -16,8 +16,8 @@
 <style>
   /* ── System font stack — no Google Fonts needed ── */
   :root {
-    --bg: #f0ede8;
-    --surface: #faf8f5;
+    --bg: #ddeeff;
+    --surface: #f4f9ff;
     --ink: #1a1814;
     --ink-muted: #7a756e;
     --ink-faint: #c4bfb8;
@@ -103,7 +103,7 @@
   .content {
     flex: 1;
     overflow-y: auto;
-    padding: 14px 14px calc(var(--tab-h) + 14px);
+    padding: 6px 8px calc(var(--tab-h) + 6px);
     -webkit-overflow-scrolling: touch;
   }
 
@@ -153,7 +153,7 @@
   /* NOTE CARD */
   .note-card {
     border-radius: var(--radius);
-    margin-bottom: 10px;
+    margin-bottom: 4px;
     box-shadow: var(--shadow);
     word-break: break-word;
     background: #ffffff;
@@ -169,7 +169,7 @@
   }
 
   .note-body {
-    padding: 14px 15px;
+    padding: 8px 12px;
   }
 
   .note-text {
@@ -205,30 +205,35 @@
     flex-wrap: wrap;
   }
 
-  /* DELETE BAR in topbar */
-  .delete-bar {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  /* DELETE BAR — removed from topbar, now in tabbar */
+  .tab-btn.tab-delete {
+    color: var(--accent);
+    position: relative;
   }
-  .delete-bar span {
-    font-size: 13px;
-    color: var(--ink-muted);
-  }
-  .btn-delete-sel {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    height: 34px;
-    padding: 0 14px;
+  .tab-btn.tab-delete .tab-del-inner {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
     background: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 14px rgba(192,57,43,0.4);
+  }
+  .tab-btn.tab-delete svg { color: #fff; width: 22px; height: 22px; }
+  .sel-count-badge {
+    position: absolute;
+    top: 4px;
+    right: calc(50% - 28px);
+    background: var(--ink);
     color: #fff;
-    border: none;
-    border-radius: var(--radius-sm);
-    font-family: var(--font);
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: 10px;
+    padding: 1px 5px;
+    min-width: 16px;
+    text-align: center;
+    line-height: 14px;
   }
 
   /* EMPTY STATE */
@@ -524,13 +529,6 @@
 <!-- TOP BAR -->
 <div class="topbar">
   <div class="topbar-title" id="topbarTitle">Нотатки</div>
-  <div class="delete-bar" id="deleteBar" style="display:none;">
-    <span id="selCountLabel"></span>
-    <button class="btn-delete-sel" id="deleteSelBtn">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
-      Видалити
-    </button>
-  </div>
   <span id="userEmail" style="font-size:11px;color:var(--ink-muted);max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
   <button data-action="signout" style="border:none;background:none;cursor:pointer;color:var(--ink-muted);font-size:11px;font-family:var(--font);padding:4px 6px;border-radius:6px;border:1px solid var(--border);">Вийти</button>
   <div class="search-wrap">
@@ -565,6 +563,16 @@
       <line x1="7" y1="16" x2="13" y2="16"/>
     </svg>
     Нотатки
+  </button>
+
+  <!-- Delete selected — visible only when notes are selected -->
+  <button class="tab-btn tab-delete" id="tabDeleteSel" style="display:none;" title="Видалити вибране">
+    <div class="tab-del-inner">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="22" height="22">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </div>
+    <span id="selCountBadge" class="sel-count-badge" style="display:none;"></span>
   </button>
 
   <button class="tab-btn" id="tabDeleted" data-action="tab" data-tab="deleted">
@@ -712,16 +720,15 @@ const fbDelDeleted  = id => userId && deleteDoc(doc(deletedCol(), id));
 let selectedIds = new Set();
 
 function updateDeleteBar() {
-  const bar = document.getElementById('deleteBar');
-  const title = document.getElementById('topbarTitle');
-  const label = document.getElementById('selCountLabel');
+  const btn = document.getElementById('tabDeleteSel');
+  const badge = document.getElementById('selCountBadge');
   if(selectedIds.size > 0) {
-    bar.style.display = 'flex';
-    title.style.display = 'none';
-    label.textContent = `Вибрано: ${selectedIds.size}`;
+    btn.style.display = 'flex';
+    badge.style.display = 'block';
+    badge.textContent = selectedIds.size;
   } else {
-    bar.style.display = 'none';
-    title.style.display = '';
+    btn.style.display = 'none';
+    badge.style.display = 'none';
   }
 }
 
@@ -791,6 +798,11 @@ function renderNotes() {
       </div></div>`;
   });
   content.innerHTML = items.join('');
+
+  // Scroll to bottom so newest notes are visible
+  if(!document.getElementById('searchInput').value) {
+    requestAnimationFrame(() => { content.scrollTop = content.scrollHeight; });
+  }
 
   // Attach single/double click for note cards (active notes)
   content.querySelectorAll('.note-card').forEach(card => {
@@ -1095,8 +1107,8 @@ document.addEventListener('click', e=>{
   if(e.target===document.getElementById('noteModal')) closeModal();
 });
 
-// Delete selected button
-document.getElementById('deleteSelBtn').addEventListener('click', deleteSelected);
+// Delete selected button (X in tabbar)
+document.getElementById('tabDeleteSel').addEventListener('click', deleteSelected);
 
 document.getElementById('searchInput').addEventListener('input',renderNotes);
 
