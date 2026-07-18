@@ -172,6 +172,13 @@
     padding: 8px 12px;
   }
 
+  .note-date {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink-muted);
+    margin-bottom: 3px;
+  }
+
   .note-text {
     font-size: 14.5px;
     line-height: 1.65;
@@ -236,73 +243,6 @@
     line-height: 14px;
   }
 
-  /* EMOJI PICKER */
-  .emoji-btn {
-    background: none;
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 6px 10px;
-    font-size: 18px;
-    cursor: pointer;
-    line-height: 1;
-    flex-shrink: 0;
-  }
-  .emoji-picker {
-    display: none;
-    flex-direction: column;
-    background: var(--surface);
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-    overflow: hidden;
-    width: 100%;
-    max-width: 600px;
-    margin-top: 6px;
-    position: relative;
-    z-index: 10;
-  }
-  .emoji-picker.open { display: flex; }
-  .emoji-cats {
-    display: flex;
-    overflow-x: auto;
-    padding: 6px 8px;
-    gap: 4px;
-    border-bottom: 1px solid var(--border);
-    scrollbar-width: none;
-  }
-  .emoji-cats::-webkit-scrollbar { display: none; }
-  .emoji-cat-btn {
-    background: none;
-    border: none;
-    font-size: 18px;
-    cursor: pointer;
-    padding: 4px 6px;
-    border-radius: 6px;
-    flex-shrink: 0;
-    opacity: 0.6;
-    transition: opacity .15s, background .15s;
-  }
-  .emoji-cat-btn.active { opacity: 1; background: var(--bg); }
-  .emoji-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
-    gap: 2px;
-    padding: 8px;
-    max-height: 180px;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-  .emoji-item {
-    font-size: 22px;
-    text-align: center;
-    cursor: pointer;
-    padding: 4px 2px;
-    border-radius: 6px;
-    line-height: 1.2;
-    transition: background .1s;
-    user-select: none;
-  }
-  .emoji-item:hover, .emoji-item:active { background: var(--bg); }
   .empty-state {
     display: flex;
     flex-direction: column;
@@ -381,110 +321,6 @@
     user-select: text;
     -webkit-user-select: text;
   }
-
-  /* COLOR ROW */
-  .form-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 12px;
-    flex-wrap: wrap;
-  }
-
-  .form-label {
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--ink-muted);
-    text-transform: uppercase;
-    letter-spacing: .5px;
-    min-width: 80px;
-  }
-
-  .color-swatches { display: flex; gap: 7px; flex-wrap: wrap; }
-
-  .color-swatch {
-    width: 40px;
-    height: 24px;
-    border-radius: 6px;
-    border: 2.5px solid transparent;
-    cursor: pointer !important;
-    pointer-events: all !important;
-    transition: transform .15s;
-    -webkit-tap-highlight-color: rgba(0,0,0,0.1);
-  }
-  .color-swatch:hover { transform: scale(1.1); }
-  .color-swatch.selected { border-color: var(--ink); }
-  .color-swatch.swatch-none {
-    background: var(--bg);
-    border: 2px dashed var(--ink-faint);
-  }
-
-  /* DATE INPUT */
-  .date-label {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 7px 11px;
-    background: var(--bg);
-    font-family: var(--font);
-    font-size: 13px;
-    cursor: pointer;
-    color: var(--ink);
-  }
-  .date-label svg { width: 15px; height: 15px; color: var(--accent); flex-shrink: 0; }
-
-  input[type="datetime-local"] {
-    font-family: var(--font);
-    font-size: 13px;
-    border: none;
-    background: transparent;
-    color: var(--ink);
-    outline: none;
-    cursor: pointer;
-    user-select: text;
-    -webkit-user-select: text;
-  }
-
-  .clear-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--ink-muted);
-    font-size: 14px;
-    padding: 4px 8px;
-    border-radius: 4px;
-  }
-
-  /* VOICE */
-  .voice-btn {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 8px 14px;
-    background: var(--bg);
-    font-family: var(--font);
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    color: var(--ink);
-  }
-  .voice-btn.recording {
-    border-color: var(--accent);
-    background: var(--accent-soft);
-    color: var(--accent);
-  }
-  .voice-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--accent);
-    display: none;
-  }
-  .voice-btn.recording .voice-dot { display: block; animation: blink 1s step-end infinite; }
-  @keyframes blink { 50% { opacity: 0; } }
 
   /* MODAL ACTIONS */
   .modal-actions {
@@ -658,52 +494,7 @@
     <div class="modal-handle"></div>
     <div class="modal-title" id="modalTitle">Нова нотатка</div>
 
-    <!-- Emoji button row -->
-    <div class="form-row" style="margin-top:0;margin-bottom:8px;">
-      <button class="emoji-btn" id="emojiToggleBtn" title="Смайлики">😊</button>
-    </div>
-    <!-- Emoji picker panel -->
-    <div class="emoji-picker" id="emojiPicker">
-      <div class="emoji-cats" id="emojiCats"></div>
-      <div class="emoji-grid" id="emojiGrid"></div>
-    </div>
-
     <textarea class="note-textarea" id="noteText" placeholder="Введіть текст нотатки…"></textarea>
-
-    <!-- Voice -->
-    <div class="form-row">
-      <button class="voice-btn" id="voiceBtn" data-action="voice">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-          <path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/>
-          <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-          <line x1="12" y1="19" x2="12" y2="23"/>
-          <line x1="8" y1="23" x2="16" y2="23"/>
-        </svg>
-        <span class="voice-dot"></span>
-        <span id="voiceBtnLabel">Диктувати</span>
-      </button>
-    </div>
-
-    <!-- Color -->
-    <div class="form-row">
-      <span class="form-label">Ярлик:</span>
-      <div class="color-swatches" id="colorSwatches"></div>
-    </div>
-
-    <!-- Reminder -->
-    <div class="form-row">
-      <span class="form-label">Нагадування:</span>
-      <label class="date-label">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="4" width="18" height="18" rx="2"/>
-          <line x1="16" y1="2" x2="16" y2="6"/>
-          <line x1="8" y1="2" x2="8" y2="6"/>
-          <line x1="3" y1="10" x2="21" y2="10"/>
-        </svg>
-        <input type="datetime-local" id="reminderInput">
-      </label>
-      <button class="clear-btn" data-action="cleardate">✕</button>
-    </div>
 
     <div class="modal-actions">
       <button class="btn-cancel" data-action="close">Скасувати</button>
@@ -741,25 +532,10 @@ const notesCol   = () => collection(fsdb, 'users', userId, 'notes');
 const deletedCol = () => collection(fsdb, 'users', userId, 'deleted');
 
 // ── APP STATE ──
-// Label (left border) colors
-const LABEL_COLORS = [
-  { hex: '#ffffff', name: 'Без ярлика' },
-  { hex: '#e53935', name: 'Червоний'   },
-  { hex: '#fb8c00', name: 'Помаранчевий' },
-  { hex: '#fdd835', name: 'Жовтий'     },
-  { hex: '#43a047', name: 'Зелений'    },
-  { hex: '#1e88e5', name: 'Синій'      },
-  { hex: '#8e24aa', name: 'Фіолетовий' },
-  { hex: '#6d4c41', name: 'Коричневий' },
-];
-const REMINDER_LABEL = '#e53935'; // red label for reminders
 let notes        = [];
 let deletedNotes = [];
 let currentTab   = 'notes';
 let editingId    = null;
-let selColor     = '#43a047'; // default green label
-let recognition  = null;
-let isRecording  = false;
 
 // ── HELPERS ──
 function uid()    { return Date.now().toString(36)+Math.random().toString(36).slice(2); }
@@ -774,6 +550,11 @@ function fmtDT(iso) {
   const weekday = d.toLocaleString('uk-UA', {weekday:'short'});
   const dt      = d.toLocaleString('uk-UA', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
   return weekday + ', ' + dt;
+}
+function fmtDateOnly(iso) {
+  if(!iso) return '';
+  const d = new Date(iso);
+  return d.toLocaleDateString('uk-UA', {day:'2-digit',month:'2-digit',year:'numeric'});
 }
 function dateKey(iso) {
   if(!iso) return '';
@@ -861,6 +642,7 @@ function renderNotes() {
     if(isDel) {
       return `<div class="note-card${isSel?' selected':''}" data-id="${n.id}">
         <div class="note-body">
+          <div class="note-date">${fmtDateOnly(n.created)}</div>
           <div class="note-text">${esc(n.text)}</div>
           <div class="note-del-footer">
             <button class="note-action-btn restore" data-action="restore" data-id="${n.id}" title="Відновити"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-5.28"/></svg> Відновити</button>
@@ -870,6 +652,7 @@ function renderNotes() {
     }
     return `<div class="note-card${isSel?' selected':''}" data-id="${n.id}">
       <div class="note-body">
+        <div class="note-date">${fmtDateOnly(n.created)}</div>
         <div class="note-text">${esc(n.text)}</div>
       </div></div>`;
   });
@@ -920,42 +703,11 @@ function switchTab(tab) {
   renderNotes();
 }
 
-// ── COLOR SWATCHES ──
-function buildSwatches() {
-  const wrap = document.getElementById('colorSwatches');
-  wrap.innerHTML = LABEL_COLORS.map(c => {
-    const isNone = c.hex === '#ffffff';
-    const bg = isNone ? 'var(--bg)' : c.hex;
-    const sel = selColor === c.hex;
-    return `<div class="color-swatch${sel?' selected':''}${isNone?' swatch-none':''}"
-      style="background:${bg};border-color:${sel?'#1a1814':'transparent'}"
-      title="${c.name}" data-color="${c.hex}"></div>`;
-  }).join('');
-  // Attach direct listeners — reliable on all browsers including mobile
-  wrap.querySelectorAll('.color-swatch').forEach(el => {
-    el.addEventListener('click', function(e) {
-      e.stopPropagation();
-      selColor = this.dataset.color;
-      wrap.querySelectorAll('.color-swatch').forEach(s => {
-        const active = s.dataset.color === selColor;
-        s.classList.toggle('selected', active);
-        s.style.borderColor = active ? '#1a1814' : 'transparent';
-      });
-    });
-    el.addEventListener('touchend', function(e) {
-      e.preventDefault();
-      this.click();
-    });
-  });
-}
-
 // ── MODAL ──
 function openCreateModal() {
   editingId=null;
   document.getElementById('modalTitle').textContent='Нова нотатка';
   document.getElementById('noteText').value='';
-  document.getElementById('reminderInput').value='';
-  selColor='#43a047'; buildSwatches();
   document.getElementById('noteModal').classList.add('open');
   setTimeout(()=>document.getElementById('noteText').focus(),200);
 }
@@ -964,35 +716,24 @@ function openEdit(id) {
   editingId=id;
   document.getElementById('modalTitle').textContent='Редагувати нотатку';
   document.getElementById('noteText').value=n.text;
-  if(n.reminder){
-    const d=new Date(n.reminder); d.setMinutes(d.getMinutes()-d.getTimezoneOffset());
-    document.getElementById('reminderInput').value=d.toISOString().slice(0,16);
-  } else { document.getElementById('reminderInput').value=''; }
-  selColor=n.labelColor||'#ffffff'; buildSwatches();
   document.getElementById('noteModal').classList.add('open');
   setTimeout(()=>document.getElementById('noteText').focus(),200);
 }
 function closeModal() {
   document.getElementById('noteModal').classList.remove('open');
-  document.getElementById('emojiPicker').classList.remove('open');
-  stopVoice();
 }
 
 function saveNote() {
   const text=document.getElementById('noteText').value.trim();
   if(!text){toast('Введіть текст нотатки');return;}
-  const raw=document.getElementById('reminderInput').value;
-  const reminder=raw?new Date(raw).toISOString():null;
-  const labelColor = selColor;
   if(editingId){
     const i=notes.findIndex(n=>n.id===editingId);
-    if(i!==-1){notes[i]={...notes[i],text,labelColor,reminder};fbSaveNote(notes[i]);}
+    if(i!==-1){notes[i]={...notes[i],text};fbSaveNote(notes[i]);}
   } else {
-    const note={id:uid(),text,labelColor,reminder,created:new Date().toISOString()};
+    const note={id:uid(),text,created:new Date().toISOString()};
     notes.push(note); fbSaveNote(note);
   }
   closeModal(); renderNotes();
-  if(reminder) scheduleNotif(notes.find(n=>n.text===text&&n.reminder===reminder));
 }
 
 // ── NOTE ACTIONS ──
@@ -1011,74 +752,6 @@ function restoreNote(id) {
 function permDelete(id) {
   fbDelDeleted(id); deletedNotes=deletedNotes.filter(n=>n.id!==id);
   renderNotes(); toast('Видалено назавжди');
-}
-
-// ── VOICE ──
-function toggleVoice() {
-  if(isRecording){stopVoice();return;}
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR){toast('Диктування не підтримується');return;}
-  recognition=new SR(); recognition.lang='uk-UA'; recognition.interimResults=true; recognition.continuous=true;
-  const ta=document.getElementById('noteText'), base=ta.value;
-  recognition.onresult=ev=>{
-    let fin='',tmp='';
-    for(let i=ev.resultIndex;i<ev.results.length;i++)
-      ev.results[i].isFinal?(fin+=ev.results[i][0].transcript):(tmp+=ev.results[i][0].transcript);
-    ta.value=base+(base&&(fin||tmp)?' ':'')+( fin||tmp);
-  };
-  recognition.onerror=()=>stopVoice();
-  recognition.onend=()=>{if(isRecording)recognition.start();};
-  recognition.start(); isRecording=true;
-  document.getElementById('voiceBtn').classList.add('recording');
-  document.getElementById('voiceBtnLabel').textContent='Зупинити';
-}
-function stopVoice() {
-  if(recognition){recognition.stop();recognition=null;}
-  isRecording=false;
-  const btn=document.getElementById('voiceBtn');
-  if(btn){btn.classList.remove('recording');document.getElementById('voiceBtnLabel').textContent='Диктувати';}
-}
-
-// ── NOTIFICATIONS ──
-let notifId=1000;
-// ── SOUND: pip-pip using Web Audio API ──
-function playPipPip() {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    [0, 180].forEach(delay => {
-      const osc  = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(880, ctx.currentTime + delay/1000);
-      gain.gain.setValueAtTime(0.4, ctx.currentTime + delay/1000);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay/1000 + 0.15);
-      osc.start(ctx.currentTime + delay/1000);
-      osc.stop(ctx.currentTime + delay/1000 + 0.15);
-    });
-  } catch(e) { console.warn('Audio:', e); }
-}
-
-function scheduleNotif(note) {
-  if(!note||!note.reminder)return;
-  const at=new Date(note.reminder); if(at<=new Date())return;
-  const ms=at.getTime()-Date.now();
-  setTimeout(() => {
-    playPipPip();
-    if('Notification' in window)
-      Notification.requestPermission().then(p=>{
-        if(p==='granted') new Notification('Нагадування',{body:note.text.slice(0,100)});
-      });
-  }, ms);
-}
-function checkReminders() {
-  notes.forEach(n=>{
-    if(n.reminder&&!n._fired){
-      const ms=new Date(n.reminder).getTime()-Date.now();
-      if(ms>0&&ms<60000){n._fired=true;scheduleNotif(n);}
-    }
-  });
 }
 
 // ── FIRESTORE SYNC ──
@@ -1107,8 +780,6 @@ function showApp(user) {
   document.getElementById('authScreen').style.display = 'none';
   document.getElementById('appScreen').style.display  = 'flex';
   startSync();
-  buildSwatches();
-  setInterval(checkReminders, 30000);
 }
 
 function showAuth() {
@@ -1161,20 +832,11 @@ document.addEventListener('click', e=>{
     if(action==='new')        openCreateModal();
     if(action==='save')       saveNote();
     if(action==='close')      closeModal();
-    if(action==='cleardate')  document.getElementById('reminderInput').value='';
-    if(action==='voice')      toggleVoice();
     if(action==='signin') {
       signInWithPopup(auth, new GoogleAuthProvider())
         .catch(e => toast('Помилка входу: ' + (e.code || e.message)));
     }
     if(action==='signout')    { if(unsubN)unsubN(); if(unsubD)unsubD(); signOut(auth); }
-    if(action==='color'){
-      selColor=color;
-      document.querySelectorAll('.color-swatch').forEach(s=>{
-        s.classList.toggle('selected',s.dataset.color===color);
-        s.style.borderColor=s.dataset.color===color?'#1a1814':'transparent';
-      });
-    }
     return;
   }
   // Click outside notes = clear selection
@@ -1186,72 +848,6 @@ document.addEventListener('click', e=>{
 document.getElementById('tabDeleteSel').addEventListener('click', deleteSelected);
 
 document.getElementById('searchInput').addEventListener('input',renderNotes);
-
-// ── EMOJI PICKER ──
-const EMOJI_CATS = [
-  { icon: '😊', label: 'Смайли', emojis: ['😀','😃','😄','😁','😆','😅','🤣','😂','🙂','🙃','😉','😊','😇','🥰','😍','🤩','😘','😗','😚','😙','🥲','😋','😛','😜','🤪','😝','🤑','🤗','🤭','🤫','🤔','🤐','🤨','😐','😑','😶','😏','😒','🙄','😬','🤥','😌','😔','😪','🤤','😴','😷','🤒','🤕','🤢','🤮','🤧','🥵','🥶','🥴','😵','🤯','🤠','🥳','🥸','😎','🤓','🧐','😕','😟','🙁','☹️','😮','😯','😲','😳','🥺','😦','😧','😨','😰','😥','😢','😭','😱','😖','😣','😞','😓','😩','😫','🥱','😤','😡','😠','🤬','😈','👿','💀','☠️','💩','🤡','👹','👺','👻','👽','👾','🤖'] },
-  { icon: '👍', label: 'Жести', emojis: ['👋','🤚','🖐','✋','🖖','👌','🤌','🤏','✌️','🤞','🤟','🤘','🤙','👈','👉','👆','🖕','👇','☝️','👍','👎','✊','👊','🤛','🤜','👏','🙌','🫶','👐','🤲','🤝','🙏','✍️','💅','🤳','💪','🦾','🦿','🦵','🦶','👂','🦻','👃','🫀','🫁','🧠','🦷','🦴','👀','👁','👅','👄','🫦','💋'] },
-  { icon: '❤️', label: 'Серця', emojis: ['❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔','❤️‍🔥','❤️‍🩹','❣️','💕','💞','💓','💗','💖','💘','💝','💟','☮️','✝️','☪️','🕉','✡️','🔯','🛐','⛎','♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓','🆔','⚛️','🉑','☢️','☣️','📴','📳','🈶','🈚','🈸','🈺','🈷️','✴️','🆚','💮','🉐','㊙️','㊗️','🈴','🈵','🈹','🈲','🅰️','🅱️','🆎','🆑','🅾️','🆘','❌','⭕','🛑','⛔','📛','🚫'] },
-  { icon: '🐶', label: 'Тварини', emojis: ['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐻‍❄️','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🙈','🙉','🙊','🐒','🦆','🦅','🦉','🦇','🐝','🪱','🐛','🦋','🐌','🐞','🐜','🪲','🦟','🦗','🪳','🕷','🦂','🐢','🐍','🦎','🦖','🦕','🐙','🦑','🦐','🦞','🦀','🐡','🐠','🐟','🐬','🐳','🐋','🦈','🐊','🐅','🐆','🦓','🦍','🦧','🦣','🐘','🦛','🦏','🐪','🐫','🦒','🦘','🦬','🐃','🐂','🐄','🐎','🐖','🐏','🐑','🦙','🐐','🦌','🐕','🐩','🦮','🐈','🐓','🦃','🦤','🦚','🦜','🦢','🦩','🕊','🐇','🦝','🦨','🦡','🦫','🦦','🦥','🐁','🐀','🐿','🦔'] },
-  { icon: '🍕', label: 'Їжа', emojis: ['🍏','🍎','🍐','🍊','🍋','🍌','🍉','🍇','🍓','🫐','🍈','🍒','🍑','🥭','🍍','🥥','🥝','🍅','🍆','🥑','🥦','🥬','🥒','🌶','🫑','🧄','🧅','🥔','🍠','🫘','🥐','🥯','🍞','🥖','🥨','🧀','🥚','🍳','🧈','🥞','🧇','🥓','🥩','🍗','🍖','🦴','🌭','🍔','🍟','🍕','🫓','🥪','🥙','🧆','🌮','🌯','🫔','🥗','🥘','🫕','🥫','🍝','🍜','🍲','🍛','🍣','🍱','🥟','🦪','🍤','🍙','🍚','🍘','🍥','🥮','🍢','🧁','🍰','🎂','🍮','🍭','🍬','🍫','🍿','🍩','🍪','🌰','🥜','🍯','🧃','🥤','🧋','🍵','☕','🍺','🍻','🥂','🍷','🥃','🍸','🍹','🧉','🍾'] },
-  { icon: '⚽', label: 'Спорт', emojis: ['⚽','🏀','🏈','⚾','🥎','🎾','🏐','🏉','🥏','🎱','🪀','🏓','🏸','🏒','🏑','🥍','🏏','🪃','🥅','⛳','🪁','🎣','🤿','🎽','🎿','🛷','🥌','🎯','🪃','🎱','🔫','🎮','🕹','🎲','♟','🎭','🎨','🖼','🎰','🚗','🚕','🚙','🚌','🚎','🏎','🚓','🚑','🚒','🚐','🛻','🚚','🚛','🚜','🏍','🛵','🛺','🚲','🛴','🛹','🛼','🚏','🛣','🛤'] },
-  { icon: '🌍', label: 'Природа', emojis: ['🌸','🌺','🌻','🌹','🥀','🌷','🌱','🌲','🌳','🌴','🌵','🎋','🎍','☘️','🍀','🍁','🍂','🍃','🍄','🪨','🌾','💐','🌞','🌝','🌛','🌜','🌚','🌕','🌖','🌗','🌘','🌑','🌒','🌓','🌔','🌙','🌟','⭐','🌠','☀️','🌤','⛅','🌥','☁️','🌦','🌧','⛈','🌩','🌨','❄️','☃️','⛄','🌬','💨','🌪','🌫','🌈','☂️','🌊','🌀','🌁'] },
-  { icon: '✈️', label: 'Подорожі', emojis: ['🚀','🛸','🛩','✈️','🚁','🛶','⛵','🚤','🛥','🛳','⛴','🚢','🚂','🚃','🚄','🚅','🚆','🚇','🚈','🚉','🚊','🚝','🚞','🚋','🚌','🚍','🚎','🚐','🚑','🚒','🚓','🚔','🚕','🚖','🚗','🚘','🚙','🛻','🚚','🚛','🚜','⛽','🛞','🚨','🚥','🚦','🛑','🚧','🗺','🧭','🏔','⛰','🌋','🗻','🏕','🏖','🏜','🏝','🏞','🏟','🏛','🏗','🧱','🏘','🏚','🏠','🏡','🏢','🏣','🏤','🏥','🏦','🏨','🏩','🏪','🏫','🏬','🏭','🏯','🏰','💒','🗼','🗽','⛪','🕌','🛕','🕍','⛩','🕋','⛲','⛺','🌁','🌃','🏙','🌄','🌅','🌆','🌇','🌉','🌌','🎠','🎡','🎢','💈','🎪'] },
-  { icon: '💡', label: 'Символи', emojis: ['💯','🔢','🔣','🔤','🔡','🔠','🆖','🆗','🆙','🆒','🆕','🆓','0️⃣','1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣','🔟','🔔','🔕','🎵','🎶','⚠️','🔱','📛','🚩','🎌','🏴','🏳️','✅','❎','🔴','🟠','🟡','🟢','🔵','🟣','⚫','⚪','🟤','🔺','🔻','🔷','🔶','🔹','🔸','▪️','▫️','◾','◽','◼️','◻️','🟥','🟧','🟨','🟩','🟦','🟪','⬛','⬜','🟫','🔲','🔳','💠','🔘','🔳','🔲','💤','🔆','🔅','📶','📳','📴','💱','💲','♻️','✔️','❓','❗','‼️','⁉️','🔃','🔄','🔙','🔚','🔛','🔜','🔝'] },
-];
-
-let currentEmojiCat = 0;
-
-function buildEmojiPicker() {
-  const catsEl = document.getElementById('emojiCats');
-  catsEl.innerHTML = EMOJI_CATS.map((c,i) =>
-    `<button class="emoji-cat-btn${i===0?' active':''}" data-catidx="${i}" title="${c.label}">${c.icon}</button>`
-  ).join('');
-  catsEl.querySelectorAll('.emoji-cat-btn').forEach(btn => {
-    btn.addEventListener('click', e => {
-      e.stopPropagation();
-      currentEmojiCat = +btn.dataset.catidx;
-      catsEl.querySelectorAll('.emoji-cat-btn').forEach(b => b.classList.toggle('active', +b.dataset.catidx === currentEmojiCat));
-      renderEmojiGrid();
-    });
-    btn.addEventListener('touchend', e => { e.preventDefault(); btn.click(); });
-  });
-  renderEmojiGrid();
-}
-
-function renderEmojiGrid() {
-  const grid = document.getElementById('emojiGrid');
-  grid.innerHTML = EMOJI_CATS[currentEmojiCat].emojis.map(em =>
-    `<div class="emoji-item" data-em="${em}">${em}</div>`
-  ).join('');
-  grid.querySelectorAll('.emoji-item').forEach(el => {
-    const insertEmoji = e => {
-      e.preventDefault(); e.stopPropagation();
-      const ta = document.getElementById('noteText');
-      const start = ta.selectionStart, end = ta.selectionEnd;
-      const val = ta.value;
-      ta.value = val.slice(0, start) + el.dataset.em + val.slice(end);
-      const pos = start + el.dataset.em.length;
-      ta.setSelectionRange(pos, pos);
-      ta.focus();
-    };
-    el.addEventListener('click', insertEmoji);
-    el.addEventListener('touchend', insertEmoji);
-  });
-}
-
-function toggleEmojiPicker() {
-  const picker = document.getElementById('emojiPicker');
-  const isOpen = picker.classList.toggle('open');
-  if(isOpen) buildEmojiPicker();
-}
-
-document.getElementById('emojiToggleBtn').addEventListener('click', e => {
-  e.stopPropagation();
-  toggleEmojiPicker();
-});
-
-
 
 // ── PWA SERVICE WORKER ──
 if('serviceWorker'in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
