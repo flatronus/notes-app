@@ -1,4 +1,4 @@
-const CACHE = 'notes-v14';
+const CACHE = 'notes-v15';
 const FILES = [
   'index.html',
   'manifest.json',
@@ -22,16 +22,20 @@ self.addEventListener('activate', e => {
   );
 });
 
-// Fetch — спочатку мережа, потім кеш (network-first щоб завжди був свіжий index.html)
+// Fetch — спочатку кеш (миттєвий запуск), оновлення з мережі у фоні (stale-while-revalidate)
 self.addEventListener('fetch', e => {
+  if (e.request.method !== 'GET') return;
   e.respondWith(
-    fetch(e.request)
-      .then(response => {
-        // Оновлюємо кеш свіжою версією
-        const clone = response.clone();
-        caches.open(CACHE).then(c => c.put(e.request, clone));
+    caches.match(e.request, { ignoreSearch: true }).then(cached => {
+      const net = fetch(e.request).then(response => {
+        if (response && response.ok) {
+          const clone = response.clone();
+          caches.open(CACHE).then(c => c.put(e.request, clone));
+        }
         return response;
-      })
-      .catch(() => caches.match(e.request))
+      }).catch(() => cached);
+      e.waitUntil(net.catch(() => {}));
+      return cached || net;
+    })
   );
 });
