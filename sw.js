@@ -1,4 +1,4 @@
-const CACHE = 'notes-v12';
+const CACHE = 'notes-v13';
 const FILES = [
   'index.html',
   'manifest.json',

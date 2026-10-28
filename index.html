@@ -508,7 +508,7 @@
 <div class="toast" id="toast"></div>
 
 <script type="module">
-const APP_VERSION = '2.0.0';
+const APP_VERSION = '2.1.0';
 
 // ── LOCAL FILE STORAGE STATE ──
 const FS_SUPPORTED = 'showSaveFilePicker' in window && 'showOpenFilePicker' in window;
@@ -597,8 +597,11 @@ function applyData(txt) {
 
 function setStatus(s) {
   const el = document.getElementById('fileInfo'); if(!el) return;
-  const ic = { saving: '⟳', saved: '✓', error: '⚠' }[s] || '';
+  const ic = { saving: '⟳', saved: '✓', error: '⚠', nofile: '↻' }[s] || '';
+  el.dataset.s = s;
   el.textContent = ic + ' ' + (fileHandle ? fileHandle.name : 'у браузері');
+  el.style.cursor = s === 'nofile' ? 'pointer' : '';
+  el.title = s === 'nofile' ? 'Файл не підключено — натисніть, щоб надати доступ' : '';
 }
 
 function persist() {
@@ -613,14 +616,17 @@ async function flushSave() {
   saving = true; dirty = false;
   try {
     const data = serialize();
+    await idbSet('data', data);                       // локальна копія — завжди
     if(fileHandle) {
-      const w = await fileHandle.createWritable();
-      await w.write(data); await w.close();
-      lastModified = (await fileHandle.getFile()).lastModified;
-    } else {
-      await idbSet('data', data);
-    }
-    setStatus(dirty ? 'saving' : 'saved');
+      await idbSet('pending', true);                  // у файл ще не потрапило
+      if(await ensurePermission(fileHandle, false)) {
+        const w = await fileHandle.createWritable();
+        await w.write(data); await w.close();
+        lastModified = (await fileHandle.getFile()).lastModified;
+        await idbSet('pending', false);
+        setStatus(dirty ? 'saving' : 'saved');
+      } else setStatus('nofile');                     // запишемо, щойно буде доступ
+    } else setStatus(dirty ? 'saving' : 'saved');
   } catch(e) {
     dirty = true; setStatus('error');
     toast('Помилка збереження: ' + (e.name || e.message));
@@ -824,21 +830,28 @@ async function loadFromHandle() {
 }
 async function initStorage() {
   try {
-    if(!FS_SUPPORTED) {            // запасний варіант: сховище браузера
-      const txt = await idbGet('data');
-      if(txt) applyData(txt);
-      enterApp(); return;
-    }
+    const copy = await idbGet('data');
+    if(copy) applyData(copy);
+    if(!FS_SUPPORTED) { enterApp(); return; }
     const h = await idbGet('handle');
-    if(h) {
-      fileHandle = h;
-      if(await ensurePermission(h, false)) { await loadFromHandle(); enterApp(); return; }
-    }
+    if(!h) { showStart(); return; }               // найперший запуск: файл обирається один раз
+    fileHandle = h;
+    if(copy) { enterApp(); syncFile(false); return; }   // одразу в додаток, файл — у фоні
+    if(await ensurePermission(h, false)) { await loadFromHandle(); await idbSet('data', serialize()); enterApp(); return; }
     showStart();
   } catch(e) {
-    fileHandle = null;
     showStart('Не вдалося відкрити файл: ' + (e.name || e.message));
   }
+}
+// Узгоджує локальну копію з файлом. ask=true — можна показати запит дозволу (лише з кліку)
+async function syncFile(ask) {
+  if(!fileHandle) return false;
+  try {
+    if(!(await ensurePermission(fileHandle, ask))) { setStatus('nofile'); return false; }
+    if(await idbGet('pending')) { dirty = true; await flushSave(); }      // локальні зміни → у файл
+    else { await loadFromHandle(); await idbSet('data', serialize()); renderNotes(); setStatus('saved'); }
+    return true;
+  } catch(e) { setStatus('error'); toast('Файл недоступний: ' + (e.name || e.message)); return false; }
 }
 async function createFile() {
   try {
@@ -854,15 +867,13 @@ async function openFile() {
     const [h] = await showOpenFilePicker({ types: FILE_TYPES });
     if(!(await ensurePermission(h, true))) { toast('Потрібен дозвіл на запис у файл'); return; }
     fileHandle = h; await loadFromHandle();
-    await idbSet('handle', h);
+    await idbSet('handle', h); await idbSet('pending', false); await idbSet('data', serialize());
     enterApp();
   } catch(e) { if(e.name !== 'AbortError') toast('Помилка: ' + (e.name || e.message)); }
 }
 async function resumeFile() {
-  try {
-    if(!(await ensurePermission(fileHandle, true))) { toast('Потрібен дозвіл на запис у файл'); return; }
-    await loadFromHandle(); enterApp();
-  } catch(e) { showStart('Не вдалося відкрити файл: ' + (e.name || e.message)); }
+  if(await syncFile(true)) enterApp();
+  else showStart('Потрібен дозвіл на доступ до файла');
 }
 async function changeFile() {
   await flushSave();
@@ -917,6 +928,13 @@ function showStart(msg) {
 
 // ── INIT ──
 initStorage();
+let reconnectTried = false;
+document.addEventListener('click', e => {
+  const el = document.getElementById('fileInfo');
+  if(!fileHandle || !el || el.dataset.s !== 'nofile') return;
+  if(reconnectTried && !e.target.closest('#fileInfo')) return;
+  reconnectTried = true; syncFile(true);
+}, true);
 window.addEventListener('focus', checkExternalChange);
 window.addEventListener('pagehide', () => { if(dirty) flushSave(); });
 document.addEventListener('visibilitychange', () => {
